@@ -5,4 +5,5 @@ package ch.bildspur.visualpush;
  */
 public final class Constants {
     public static final String APP_NAME = "Visual Push";
+    public static final String ABLETON_PUSH_MIDI_PORT = "Live Port";
 }
