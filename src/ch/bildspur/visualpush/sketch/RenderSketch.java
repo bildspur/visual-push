@@ -24,13 +24,13 @@ public class RenderSketch extends PApplet {
     PushState activeState = new SplashScreenState();
 
     public void settings(){
-        size(400, 400, P2D);
+        size(640, 480, P2D);
         PJOGL.profile = 1;
     }
 
     public void setup()
     {
-        frameRate(60);
+        frameRate(30);
 
         // controller setup
         syphon.setup(this);
