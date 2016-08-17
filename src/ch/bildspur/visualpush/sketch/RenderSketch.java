@@ -1,11 +1,14 @@
 package ch.bildspur.visualpush.sketch;
 
-import ch.bildspur.visualpush.Constants;
 import ch.bildspur.visualpush.sketch.controller.MidiController;
+import ch.bildspur.visualpush.sketch.controller.PushController;
 import ch.bildspur.visualpush.sketch.controller.SyphonController;
+import ch.bildspur.visualpush.sketch.state.PushState;
+import ch.bildspur.visualpush.sketch.state.SplashScreenState;
 import processing.core.PApplet;
+import processing.core.PGraphics;
 import processing.opengl.PJOGL;
-import themidibus.MidiBus;
+import processing.video.Movie;
 
 /**
  * Created by cansik on 16/08/16.
@@ -14,9 +17,14 @@ public class RenderSketch extends PApplet {
 
     SyphonController syphon = new SyphonController();
     MidiController midi = new MidiController();
+    PushController push = new PushController();
+
+    PGraphics screen;
+
+    PushState activeState = new SplashScreenState();
 
     public void settings(){
-        size(400, 400, P3D);
+        size(400, 400, P2D);
         PJOGL.profile = 1;
     }
 
@@ -25,13 +33,46 @@ public class RenderSketch extends PApplet {
         // controller setup
         syphon.setup(this);
         midi.setup(this);
+        push.setup(this);
+
+        screen = push.getScreen();
+
+        // first state setup
+        activeState.setup(this, screen);
     }
 
     public void draw(){
         background(0);
         ellipse(mouseX, mouseY, 20, 20);
 
+        // draw screen
+        screen.beginDraw();
+        screen.background(0);
+
+        if(activeState.isRunning())
+            activeState.update();
+        else
+        {
+            // change state
+            activeState.stop();
+            activeState = activeState.getNextState();
+            activeState.setup(this, screen);
+        }
+
+        screen.endDraw();
+
         syphon.sendScreenToSyphon();
+        push.sendFrame();
+    }
+
+    public void stop()
+    {
+        push.close();
+    }
+
+    // Video methods
+    public void movieEvent(Movie m) {
+        m.read();
     }
 
 
