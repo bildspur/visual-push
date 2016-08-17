@@ -4,6 +4,7 @@ import ch.bildspur.visualpush.push.Wayang;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PGraphics;
+import processing.core.PMatrix;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -15,6 +16,7 @@ public class PushController extends ProcessingController {
 
     BufferedImage pushDisplay = null;
     PGraphics screen;
+    Graphics2D graphics;
 
     public void setup(PApplet sketch){
         super.setup(sketch);
@@ -22,6 +24,7 @@ public class PushController extends ProcessingController {
         // connect to push
         pushDisplay = Wayang.open();
         screen = sketch.createGraphics(Wayang.DISPLAY_WIDTH, Wayang.DISPLAY_HEIGHT, PConstants.P2D);
+        graphics = pushDisplay.createGraphics();
     }
 
     public void close()
@@ -40,8 +43,6 @@ public class PushController extends ProcessingController {
 
     private void renderOnDisplay(PGraphics img)
     {
-        img.loadPixels();
-        Graphics2D graphics = pushDisplay.createGraphics();
         graphics.drawImage((Image)img.get().getNative(), 0, 0, null);
     }
 }

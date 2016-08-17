@@ -30,6 +30,8 @@ public class RenderSketch extends PApplet {
 
     public void setup()
     {
+        frameRate(60);
+
         // controller setup
         syphon.setup(this);
         midi.setup(this);
@@ -59,6 +61,7 @@ public class RenderSketch extends PApplet {
             activeState.setup(this, screen);
         }
 
+        screen.text("FPS: " + frameRate, 5, 20);
         screen.endDraw();
 
         syphon.sendScreenToSyphon();
@@ -72,7 +75,8 @@ public class RenderSketch extends PApplet {
 
     // Video methods
     public void movieEvent(Movie m) {
-        m.read();
+        if(m.available())
+            m.read();
     }
 
 
