@@ -73,22 +73,13 @@ public class Wayang {
     private static BufferedImage displayImage = null;
 
     /**
-     * Transfer object for asynchronous transfers.
-     */
-    private static Transfer transfer = null;
-
-    /**
      * Close the Push 2 interface if it is open, and shut down our libusb context if it is active.
      */
     public static synchronized void close() {
-        if(transfer != null)
-        {
-            LibUsb.freeTransfer(transfer);
-        }
-
         if (pushHandle != null) {
             displayImage = null;
-            //LibUsb.close(pushHandle);
+            LibUsb.handleEvents(context);
+            LibUsb.close(pushHandle);
             pushHandle = null;
         }
         if (transferBuffer != null) {
@@ -276,7 +267,6 @@ public class Wayang {
         }
     }
 
-
     /**
      * Send a frame of pixels async, corresponding to whatever has been drawn in the image returned by open(),
      * to the display.
@@ -289,15 +279,15 @@ public class Wayang {
             throw new IllegalStateException("Push 2 device has not been opened");
         }
         IntBuffer transferred = IntBuffer.allocate(1);
-        transfer = LibUsb.allocTransfer();
-        LibUsb.fillBulkTransfer(transfer, pushHandle, (byte) 0x01, headerBuffer, LibUsb::freeTransfer, null, 1000);
+        Transfer headerTransfer = LibUsb.allocTransfer();
+        LibUsb.fillBulkTransfer(headerTransfer, pushHandle, (byte) 0x01, headerBuffer, LibUsb::freeTransfer,  null, 1000);
 
-        int result = LibUsb.submitTransfer(transfer);
+        int result = LibUsb.submitTransfer(headerTransfer);
         if (result != LibUsb.SUCCESS) {
             throw new LibUsbException("Transfer of frame header to Push 2 display failed", result);
         }
 
-        // We send eight lines at a time to the display; allocate buffers big enough to receive them,
+        // We send 8 lines at a time to the display; allocate buffers big enough to receive them,
         // expand with the row stride padding, and mask with the signal shaping pattern.
         short[] pixels = new short[LINES_PER_TRANSFER * DISPLAY_WIDTH];
         byte[] maskedChunk = new byte[LINES_PER_TRANSFER * BYTES_PER_LINE];
@@ -309,13 +299,18 @@ public class Wayang {
             transferBuffer.put(maskedChunk);
             transferred.clear();
 
-            transfer = LibUsb.allocTransfer();
-            LibUsb.fillBulkTransfer(transfer, pushHandle, (byte) 0x01, transferBuffer, LibUsb::freeTransfer, null, 1000);
-            result = LibUsb.submitTransfer(transfer);
+            Transfer bodyTransfer = LibUsb.allocTransfer();
+            LibUsb.fillBulkTransfer(bodyTransfer, pushHandle, (byte) 0x01, transferBuffer, LibUsb::freeTransfer, null, 1000);
+            result = LibUsb.submitTransfer(bodyTransfer);
 
             if (result != LibUsb.SUCCESS) {
                 throw new LibUsbException("Transfer of frame header to Push 2 display failed", result);
             }
         }
+
+        // handle events
+        result = LibUsb.handleEventsTimeout(null, 250000);
+        if (result != LibUsb.SUCCESS)
+            throw new LibUsbException("Unable to handle events", result);
     }
 }

@@ -1,9 +1,6 @@
 package ch.bildspur.visualpush.sketch;
 
-import ch.bildspur.visualpush.sketch.controller.DesignController;
-import ch.bildspur.visualpush.sketch.controller.MidiController;
-import ch.bildspur.visualpush.sketch.controller.PushController;
-import ch.bildspur.visualpush.sketch.controller.SyphonController;
+import ch.bildspur.visualpush.sketch.controller.*;
 import ch.bildspur.visualpush.sketch.state.PushState;
 import ch.bildspur.visualpush.sketch.state.SplashScreenState;
 import processing.core.PApplet;
@@ -16,10 +13,13 @@ import processing.video.Movie;
  */
 public class RenderSketch extends PApplet {
 
+    final static int PUSH_DISPLAY_REFRESH_STEP = 2;
+
     SyphonController syphon = new SyphonController();
     MidiController midi = new MidiController();
     PushController push = new PushController();
     DesignController design = new DesignController();
+    UIController ui = new UIController();
 
     PGraphics screen;
 
@@ -38,7 +38,9 @@ public class RenderSketch extends PApplet {
         syphon.setup(this);
         midi.setup(this);
         push.setup(this);
+        ui.setup(this);
 
+        // get screen from push lib
         screen = push.getScreen();
 
         // setup screen font and design
@@ -66,15 +68,20 @@ public class RenderSketch extends PApplet {
             activeState.setup(this, screen);
         }
 
+        // render ui
+        ui.renderUI(screen);
+
         // show debug information
-        screen.text("FPS: " + (frameRate), 5, 20);
+        screen.text("FPS: " + (frameRate / PUSH_DISPLAY_REFRESH_STEP), 5, 20);
         text("FPS: " + frameRate, 5, 20);
 
         screen.endDraw();
 
         // send screens
         syphon.sendScreenToSyphon();
-        push.sendFrame();
+
+        if(frameCount % PUSH_DISPLAY_REFRESH_STEP == 0)
+            push.sendFrame();
     }
 
     public void stop()
