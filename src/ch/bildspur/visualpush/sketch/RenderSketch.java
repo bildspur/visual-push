@@ -30,7 +30,7 @@ public class RenderSketch extends PApplet {
 
     public void setup()
     {
-        frameRate(30);
+        frameRate(60);
 
         // controller setup
         syphon.setup(this);
@@ -61,11 +61,14 @@ public class RenderSketch extends PApplet {
             activeState.setup(this, screen);
         }
 
-        screen.text("FPS: " + frameRate, 5, 20);
+        screen.text("FPS: " + (frameRate), 5, 20);
         screen.endDraw();
 
         syphon.sendScreenToSyphon();
+
         push.sendFrame();
+
+        text("FPS: " + frameRate, 5, 20);
     }
 
     public void stop()

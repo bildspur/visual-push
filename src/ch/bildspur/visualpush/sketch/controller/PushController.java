@@ -32,9 +32,9 @@ public class PushController extends ProcessingController {
         Wayang.close();
     }
 
-    public void sendFrame(){
+    public void sendFrame() {
         renderOnDisplay(screen);
-        Wayang.sendFrame();
+        Wayang.sendFrameAsync();
     }
 
     public PGraphics getScreen() {

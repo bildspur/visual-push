@@ -10,13 +10,10 @@ import themidibus.MidiBus;
 public class MidiController extends ProcessingController {
     MidiBus bus;
 
-
     public void setup(PApplet sketch){
         super.setup(sketch);
 
         bus = new MidiBus(sketch, Constants.ABLETON_PUSH_MIDI_PORT, Constants.ABLETON_PUSH_MIDI_PORT);
-
-        MidiBus.list();
     }
 
     public void noteOn(int channel, int pitch, int velocity) {
