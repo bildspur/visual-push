@@ -1,5 +1,6 @@
 package ch.bildspur.visualpush.sketch;
 
+import ch.bildspur.visualpush.sketch.controller.DesignController;
 import ch.bildspur.visualpush.sketch.controller.MidiController;
 import ch.bildspur.visualpush.sketch.controller.PushController;
 import ch.bildspur.visualpush.sketch.controller.SyphonController;
@@ -18,6 +19,7 @@ public class RenderSketch extends PApplet {
     SyphonController syphon = new SyphonController();
     MidiController midi = new MidiController();
     PushController push = new PushController();
+    DesignController design = new DesignController();
 
     PGraphics screen;
 
@@ -39,18 +41,21 @@ public class RenderSketch extends PApplet {
 
         screen = push.getScreen();
 
+        // setup screen font and design
+        design.setup(this, screen);
+
         // first state setup
         activeState.setup(this, screen);
     }
 
     public void draw(){
         background(0);
-        ellipse(mouseX, mouseY, 20, 20);
 
         // draw screen
         screen.beginDraw();
         screen.background(0);
 
+        // state machine
         if(activeState.isRunning())
             activeState.update();
         else
@@ -61,14 +66,15 @@ public class RenderSketch extends PApplet {
             activeState.setup(this, screen);
         }
 
+        // show debug information
         screen.text("FPS: " + (frameRate), 5, 20);
+        text("FPS: " + frameRate, 5, 20);
+
         screen.endDraw();
 
+        // send screens
         syphon.sendScreenToSyphon();
-
         push.sendFrame();
-
-        text("FPS: " + frameRate, 5, 20);
     }
 
     public void stop()

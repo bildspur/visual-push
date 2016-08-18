@@ -1,9 +1,9 @@
 package ch.bildspur.visualpush.sketch.state;
 
+import ch.bildspur.visualpush.util.ContentUtil;
 import ch.bildspur.visualpush.util.ImageUtil;
 import processing.core.PApplet;
 import processing.core.PGraphics;
-import processing.core.PImage;
 import processing.video.Movie;
 
 import java.net.URISyntaxException;
@@ -19,13 +19,7 @@ public class SplashScreenState extends PushState {
     {
         super.setup(sketch, screen);
 
-        String splashPath = null;
-        try {
-            splashPath = SplashScreenState.class.getResource("/images/splash_screen.mov").toURI().getPath();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-
+        String splashPath = ContentUtil.getContent("splash_screen.mov");
         bildspurLogo = new Movie(sketch, splashPath);
         bildspurLogo.play();
     }
