@@ -73,6 +73,11 @@ public class Wayang {
     private static BufferedImage displayImage = null;
 
     /**
+     * Transfer object for asynchronous calls.
+     */
+    private static Transfer transfer = null;
+
+    /**
      * Close the Push 2 interface if it is open, and shut down our libusb context if it is active.
      */
     public static synchronized void close() {
@@ -279,10 +284,10 @@ public class Wayang {
             throw new IllegalStateException("Push 2 device has not been opened");
         }
         IntBuffer transferred = IntBuffer.allocate(1);
-        Transfer headerTransfer = LibUsb.allocTransfer();
-        LibUsb.fillBulkTransfer(headerTransfer, pushHandle, (byte) 0x01, headerBuffer, LibUsb::freeTransfer,  null, 1000);
+        transfer = LibUsb.allocTransfer();
+        LibUsb.fillBulkTransfer(transfer, pushHandle, (byte) 0x01, headerBuffer, LibUsb::freeTransfer,  null, 1000);
 
-        int result = LibUsb.submitTransfer(headerTransfer);
+        int result = LibUsb.submitTransfer(transfer);
         if (result != LibUsb.SUCCESS) {
             throw new LibUsbException("Transfer of frame header to Push 2 display failed", result);
         }
@@ -299,9 +304,9 @@ public class Wayang {
             transferBuffer.put(maskedChunk);
             transferred.clear();
 
-            Transfer bodyTransfer = LibUsb.allocTransfer();
-            LibUsb.fillBulkTransfer(bodyTransfer, pushHandle, (byte) 0x01, transferBuffer, LibUsb::freeTransfer, null, 1000);
-            result = LibUsb.submitTransfer(bodyTransfer);
+            transfer = LibUsb.allocTransfer();
+            LibUsb.fillBulkTransfer(transfer, pushHandle, (byte) 0x01, transferBuffer, LibUsb::freeTransfer, null, 1000);
+            result = LibUsb.submitTransfer(transfer);
 
             if (result != LibUsb.SUCCESS) {
                 throw new LibUsbException("Transfer of frame header to Push 2 display failed", result);
