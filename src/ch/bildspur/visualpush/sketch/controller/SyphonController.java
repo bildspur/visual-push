@@ -20,14 +20,11 @@ public class SyphonController extends ProcessingController {
 
     public void sendScreenToSyphon()
     {
-        sketch.loadPixels();
         server.sendScreen();
     }
 
     public void sendImageToSyphon(PGraphics p)
     {
-        p.loadPixels();
-
         // Flip image back (very bad approach)
         PImage canvas = new PImage(p.width, p.height);
         for (int x = 0; x < p.width; x++) {
