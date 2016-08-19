@@ -32,6 +32,8 @@ public class UIController extends ProcessingController {
 
     public void renderUI(PGraphics g)
     {
+        p2.getPosition().add(1, 0);
+
         if(p2.getPosition().x > p.getWidth() - p2.getWidth())
             p2.setPosition(new PVector(0, 20));
 

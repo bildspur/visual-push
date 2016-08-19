@@ -8,6 +8,8 @@ import processing.core.PGraphics;
 import processing.opengl.PJOGL;
 import processing.video.Movie;
 
+import javax.sound.midi.MidiMessage;
+
 /**
  * Created by cansik on 16/08/16.
  */
@@ -95,18 +97,7 @@ public class RenderSketch extends PApplet {
             m.read();
     }
 
-
     // Midi methods
-    public void noteOn(int channel, int pitch, int velocity) {
-        midi.noteOn(channel, pitch, velocity);
-    }
-
-    public void noteOff(int channel, int pitch, int velocity) {
-        midi.noteOff(channel, pitch, velocity);
-    }
-
-    public void controllerChange(int channel, int number, int value) {
-        midi.controllerChange(channel, number, value);
-    }
+    public void midiMessage(MidiMessage message) { midi.midiMessage(message);}
 }
 
