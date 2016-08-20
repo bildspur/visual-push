@@ -37,5 +37,5 @@ public abstract class ControlChangeHandler extends BasicEventHandler{
         }
     }
 
-    abstract void controlChange(int channel, int number, int value);
+    public abstract void controlChange(int channel, int number, int value);
 }

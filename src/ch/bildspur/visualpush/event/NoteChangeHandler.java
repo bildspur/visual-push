@@ -46,7 +46,7 @@ public abstract class NoteChangeHandler extends BasicEventHandler {
         }
     }
 
-    abstract void noteOn(int channel, int number, int value);
+    public abstract void noteOn(int channel, int number, int value);
 
-    abstract void noteOff(int channel, int number, int value);
+    public abstract void noteOff(int channel, int number, int value);
 }

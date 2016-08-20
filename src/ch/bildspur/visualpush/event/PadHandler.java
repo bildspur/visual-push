@@ -12,13 +12,13 @@ public class PadHandler extends NoteChangeHandler {
     }
 
     @Override
-    void noteOn(int channel, int number, int value) {
+    public void noteOn(int channel, int number, int value) {
         System.out.println("NOTEON: " + number + " V:" + value);
         MidiController.bus.sendNoteOn(1, this.number, 25);
     }
 
     @Override
-    void noteOff(int channel, int number, int value) {
+    public void noteOff(int channel, int number, int value) {
         MidiController.bus.sendNoteOff(1, this.number, 25);
     }
 }

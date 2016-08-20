@@ -26,7 +26,7 @@ public class Panel extends UIControl {
         PVector pos = getAbsolutePosition();
 
         g.fill(fillColor.getRGB());
-        g.stroke(borderColor.getRGB());
+        g.stroke(strokeColor.getRGB());
         g.rect(pos.x, pos.y, width, height);
 
         super.paint(g);

@@ -15,7 +15,7 @@ public abstract class UIControl {
     float width;
     float height;
     Color fillColor = Color.GRAY;
-    Color borderColor = Color.WHITE;
+    Color strokeColor = Color.WHITE;
     List<UIControl> controls;
     UIControl parent;
 
@@ -41,12 +41,12 @@ public abstract class UIControl {
         this.height = height;
     }
 
-    public Color getBorderColor() {
-        return borderColor;
+    public Color getStrokeColor() {
+        return strokeColor;
     }
 
-    public void setBorderColor(Color borderColor) {
-        this.borderColor = borderColor;
+    public void setStrokeColor(Color strokeColor) {
+        this.strokeColor = strokeColor;
     }
 
     public Color getFillColor() {
