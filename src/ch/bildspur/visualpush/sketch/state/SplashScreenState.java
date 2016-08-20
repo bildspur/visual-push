@@ -19,7 +19,7 @@ public class SplashScreenState extends PushState {
     {
         super.setup(sketch, screen);
 
-        String splashPath = ContentUtil.getContent("splash_screen.mov");
+        String splashPath = ContentUtil.getContent("splash_screen_short.mov");
         bildspurLogo = new Movie(sketch, splashPath);
         bildspurLogo.play();
     }

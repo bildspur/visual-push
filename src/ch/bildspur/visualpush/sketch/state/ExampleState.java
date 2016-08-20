@@ -37,6 +37,7 @@ public class ExampleState extends PushState {
 
             // set style
             c.setFillColor(new Color(1, 176, 240));
+            //c.setFillColor(Color.getHSBColor(i * (1.0f / 8), 1f, 0.94f));
             c.setStrokeColor(new Color(255, 255, 255));
 
             sketch.getUi().activeScene.addControl(c);
