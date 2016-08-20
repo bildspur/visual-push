@@ -1,7 +1,8 @@
 package ch.bildspur.visualpush.sketch.controller;
 
 import ch.bildspur.visualpush.Constants;
-import ch.bildspur.visualpush.event.MidiEventListener;
+import ch.bildspur.visualpush.event.midi.MidiEventCoordinator;
+import ch.bildspur.visualpush.event.midi.MidiEventListener;
 import ch.bildspur.visualpush.event.midi.MidiEvent;
 import processing.core.PApplet;
 import themidibus.MidiBus;
@@ -15,8 +16,8 @@ import java.util.Map;
 /**
  * Created by cansik on 16/08/16.
  */
-public class MidiController extends ProcessingController {
-    MidiBus bus;
+public class MidiController extends ProcessingController implements MidiEventCoordinator {
+    public static MidiBus bus;
 
     Map<MidiEvent, List<MidiEventListener>> midiListeners;
 
@@ -53,9 +54,11 @@ public class MidiController extends ProcessingController {
                 listener.midiEvent(event);
 
         // debug print
+        /*
         PApplet.print("Status Byte/MIDI Command:"+message.getStatus());
         for (int i = 1;i < message.getMessage().length;i++) {
             PApplet.print("Param "+(i+1)+": "+(int)(message.getMessage()[i] & 0xFF));
         }
+        */
     }
 }

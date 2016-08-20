@@ -10,16 +10,16 @@ import java.util.List;
 /**
  * Created by cansik on 18/08/16.
  */
-public abstract class Control {
+public abstract class UIControl {
     PVector position;
     float width;
     float height;
     Color fillColor = Color.GRAY;
     Color borderColor = Color.WHITE;
-    List<Control> controls;
-    Control parent;
+    List<UIControl> controls;
+    UIControl parent;
 
-    public Control()
+    public UIControl()
     {
         controls = new ArrayList<>();
         position = new PVector();
@@ -57,11 +57,11 @@ public abstract class Control {
         this.fillColor = fillColor;
     }
 
-    public List<Control> getControls() {
+    public List<UIControl> getControls() {
         return controls;
     }
 
-    public Control getParent() {
+    public UIControl getParent() {
         return parent;
     }
 
@@ -73,13 +73,13 @@ public abstract class Control {
         this.position = position;
     }
 
-    public void addControl(Control c)
+    public void addControl(UIControl c)
     {
         c.parent = this;
         controls.add(c);
     }
 
-    public void removeControl(Control c)
+    public void removeControl(UIControl c)
     {
         c.parent = null;
         controls.remove(c);
@@ -94,7 +94,7 @@ public abstract class Control {
 
     public void paint(PGraphics g)
     {
-        for(Control c : controls)
+        for(UIControl c : controls)
             c.paint(g);
     }
 }

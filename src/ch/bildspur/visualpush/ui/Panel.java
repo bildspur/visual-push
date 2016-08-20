@@ -6,7 +6,7 @@ import processing.core.PVector;
 /**
  * Created by cansik on 18/08/16.
  */
-public class Panel extends Control {
+public class Panel extends UIControl {
 
     public Panel()
     {

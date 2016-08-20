@@ -1,5 +1,9 @@
 package ch.bildspur.visualpush.sketch;
 
+import ch.bildspur.visualpush.event.ButtonHandler;
+import ch.bildspur.visualpush.event.PadHandler;
+import ch.bildspur.visualpush.event.midi.MidiEventListener;
+import ch.bildspur.visualpush.event.NoteChangeHandler;
 import ch.bildspur.visualpush.sketch.controller.*;
 import ch.bildspur.visualpush.sketch.state.PushState;
 import ch.bildspur.visualpush.sketch.state.SplashScreenState;
@@ -9,6 +13,8 @@ import processing.opengl.PJOGL;
 import processing.video.Movie;
 
 import javax.sound.midi.MidiMessage;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by cansik on 16/08/16.
@@ -50,6 +56,17 @@ public class RenderSketch extends PApplet {
 
         // first state setup
         activeState.setup(this, screen);
+
+        // first event listener test
+        List<MidiEventListener> listeners =  new ArrayList<>();
+        for(int i = 36; i < 100; i++)
+            listeners.add(new PadHandler(0, i));
+
+        for(int i = 20; i < 28; i++)
+            listeners.add(new ButtonHandler(0, i));
+
+        for(MidiEventListener l : listeners)
+            l.registerMidiEvent(midi);
     }
 
     public void draw(){
