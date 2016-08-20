@@ -1,5 +1,6 @@
 package ch.bildspur.visualpush.sketch.state;
 
+import ch.bildspur.visualpush.sketch.RenderSketch;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 
@@ -7,7 +8,7 @@ import processing.core.PGraphics;
  * Created by cansik on 17/08/16.
  */
 public abstract class PushState {
-    PApplet sketch;
+    RenderSketch sketch;
     PGraphics screen;
     boolean isRunning;
 
@@ -17,7 +18,7 @@ public abstract class PushState {
 
     public void setup(PApplet sketch, PGraphics screen)
     {
-        this.sketch = sketch;
+        this.sketch = (RenderSketch)sketch;
         this.screen = screen;
         isRunning = true;
     }

@@ -32,4 +32,9 @@ public class SplashScreenState extends PushState {
         if(bildspurLogo.time() >= bildspurLogo.duration())
             isRunning = false;
     }
+
+    @Override
+    public PushState getNextState() {
+        return new ExampleState();
+    }
 }

@@ -58,33 +58,6 @@ public class RenderSketch extends PApplet {
 
         // first state setup
         activeState.setup(this, screen);
-
-        // test things
-        // todo: clean this up
-
-        // encoder test
-        for(int i = 0; i < 8; i++) {
-            EncoderControl c = new EncoderControl(0, i + 71, 0, i);
-            c.setPosition(new PVector(60 + (120 * i), 70));
-            c.registerMidiEvent(midi);
-
-            // set style
-            c.setFillColor(new Color(1, 176, 240));
-            c.setStrokeColor(new Color(255, 255, 255));
-
-            ui.activeScene.addControl(c);
-        }
-
-        // first event listener test
-        List<MidiEventListener> listeners =  new ArrayList<>();
-        for(int i = 36; i < 100; i++)
-            listeners.add(new PadHandler(0, i));
-
-        for(int i = 20; i < 28; i++)
-            listeners.add(new ButtonHandler(0, i));
-
-        for(MidiEventListener l : listeners)
-            l.registerMidiEvent(midi);
     }
 
     public void draw(){
@@ -137,5 +110,25 @@ public class RenderSketch extends PApplet {
 
     // Midi methods
     public void midiMessage(MidiMessage message) { midi.midiMessage(message);}
+
+    public SyphonController getSyphon() {
+        return syphon;
+    }
+
+    public MidiController getMidi() {
+        return midi;
+    }
+
+    public PushController getPush() {
+        return push;
+    }
+
+    public DesignController getDesign() {
+        return design;
+    }
+
+    public UIController getUi() {
+        return ui;
+    }
 }
 
