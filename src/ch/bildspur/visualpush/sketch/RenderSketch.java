@@ -46,6 +46,7 @@ public class RenderSketch extends PApplet {
 
         // controller setup
         syphon.setup(this);
+
         midi.setup(this);
         push.setup(this);
         ui.setup(this);

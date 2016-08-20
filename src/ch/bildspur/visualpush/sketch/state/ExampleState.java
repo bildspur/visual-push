@@ -3,9 +3,12 @@ package ch.bildspur.visualpush.sketch.state;
 import ch.bildspur.visualpush.event.ButtonHandler;
 import ch.bildspur.visualpush.event.PadHandler;
 import ch.bildspur.visualpush.event.midi.MidiEventListener;
+import ch.bildspur.visualpush.sketch.controller.MidiController;
+import ch.bildspur.visualpush.ui.ClipViewerControl;
 import ch.bildspur.visualpush.ui.EncoderControl;
 import ch.bildspur.visualpush.util.ContentUtil;
 import ch.bildspur.visualpush.util.ImageUtil;
+import ch.bildspur.visualpush.video.Clip;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PVector;
@@ -13,11 +16,17 @@ import processing.video.Movie;
 
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 /**
  * Created by cansik on 20/08/16.
  */
 public class ExampleState extends PushState {
+    List<Clip> clipList = new ArrayList<>();
+
+    Clip tunnel;
+    Clip circle;
+
     public void setup(PApplet sketch, PGraphics screen)
     {
         super.setup(sketch, screen);
@@ -26,8 +35,66 @@ public class ExampleState extends PushState {
 
     void setupUI()
     {
+        // first event listener test
+        java.util.List<MidiEventListener> listeners =  new ArrayList<>();
+
         // test things
         // todo: clean this up
+        tunnel = new Clip(sketch, ContentUtil.getContent("visuals/tunnel.mov"));
+        circle = new Clip(sketch, ContentUtil.getContent("visuals/circle.mov"));
+
+        clipList.add(tunnel);
+        clipList.add(circle);
+
+        // add ui
+        sketch.getUi().activeScene.addControl(new ClipViewerControl(tunnel, 50, 80, 80, 60));
+        sketch.getUi().activeScene.addControl(new ClipViewerControl(circle, 200, 80, 80, 60));
+
+        // add controllers
+        listeners.add(new PadHandler(0, 92) {
+            @Override
+            public void noteOn(int channel, int number, int value) {
+                super.noteOn(channel, number, value);
+                tunnel.loop();
+                System.out.println("play tunnel!");
+            }
+
+            @Override
+            public void noteOff(int channel, int number, int value) {
+                super.noteOff(channel, number, value);
+                tunnel.stop();
+                MidiController.bus.sendNoteOn(9, 92, 127);
+                System.out.println("stop tunnel!");
+            }
+        });
+
+        listeners.add(new PadHandler(0, 93) {
+            @Override
+            public void noteOn(int channel, int number, int value) {
+                super.noteOn(channel, number, value);
+                circle.loop();
+                System.out.println("play circle!");
+            }
+
+            @Override
+            public void noteOff(int channel, int number, int value) {
+                super.noteOff(channel, number, value);
+                circle.stop();
+                MidiController.bus.sendNoteOn(9, 93, 127);
+                System.out.println("stop circle!");
+            }
+        });
+
+                /*
+        for(int i = 36; i < 100; i++)
+            listeners.add(new PadHandler(0, i));
+            */
+
+        for(int i = 20; i < 28; i++)
+            listeners.add(new ButtonHandler(0, i));
+
+        for(MidiEventListener l : listeners)
+            l.registerMidiEvent(sketch.getMidi());
 
         // encoder test
         for(int i = 0; i < 8; i++) {
@@ -42,20 +109,14 @@ public class ExampleState extends PushState {
 
             sketch.getUi().activeScene.addControl(c);
         }
-
-        // first event listener test
-        java.util.List<MidiEventListener> listeners =  new ArrayList<>();
-        for(int i = 36; i < 100; i++)
-            listeners.add(new PadHandler(0, i));
-
-        for(int i = 20; i < 28; i++)
-            listeners.add(new ButtonHandler(0, i));
-
-        for(MidiEventListener l : listeners)
-            l.registerMidiEvent(sketch.getMidi());
     }
 
     public void update()
     {
+        if(tunnel.isPlaying())
+            sketch.blend(tunnel, 0, 0, tunnel.width, tunnel.height, 0, 0, tunnel.width, tunnel.height, PApplet.SCREEN);
+
+        if(circle.isPlaying())
+            sketch.blend(circle, 0, 0, circle.width, circle.height, 0, 0, circle.width, circle.height, PApplet.SCREEN);
     }
 }
