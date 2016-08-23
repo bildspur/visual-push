@@ -1,118 +1,73 @@
 package ch.bildspur.visualpush.ui;
 
-import ch.bildspur.visualpush.event.ControlChangeHandler;
-import ch.bildspur.visualpush.event.NoteChangeHandler;
-import ch.bildspur.visualpush.event.midi.MidiEvent;
-import ch.bildspur.visualpush.event.midi.MidiEventCoordinator;
-import ch.bildspur.visualpush.event.midi.MidiEventListener;
+import ch.bildspur.visualpush.data.DataModel;
+import ch.bildspur.visualpush.ui.style.NumberDisplayStyle;
 import processing.core.PApplet;
 import processing.core.PGraphics;
-import processing.core.PVector;
 
 /**
  * Created by cansik on 20/08/16.
  */
-public class EncoderControl extends UIControl implements MidiEventListener {
-    private ControlChangeHandler ccHandler;
-    private NoteChangeHandler nnHandler;
+public class EncoderControl extends NumberDisplayControl {
+    float start = -240;
+    float end = 60;
 
-    int value = 0;
-
-    boolean isActive = false;
-
-    public EncoderControl(int ccChannel, int ccNumber, int nnChannel, int nnNumber)
+    public EncoderControl(DataModel<Integer> model, int ccChannel, int ccNumber, int nnChannel, int nnNumber)
     {
-        super();
-
-        width = 50;
-        height = 50;
-
-        // set up ccHandler
-        ccHandler = new ControlChangeHandler(ccChannel, ccNumber) {
-            @Override
-            public void controlChange(int channel, int number, int value) {
-                EncoderControl.this.controlChange(channel, number, value);
-            }
-        };
-
-        nnHandler = new NoteChangeHandler(nnChannel, nnNumber) {
-            @Override
-            public void noteOn(int channel, int number, int value) {
-                isActive = true;
-            }
-
-            @Override
-            public void noteOff(int channel, int number, int value) {
-                isActive = false;
-            }
-        };
-    }
-
-    public void controlChange(int channel, int number, int value) {
-        if(value == 127)
-            this.value -= 1;
-        else if(value == 1)
-            this.value += 1;
-
-        if(this.value > 255)
-            this.value = 255;
-
-        if(this.value < 0)
-            this.value = 0;
+        super(model, ccChannel, ccNumber, nnChannel, nnNumber);
     }
 
     public void paint(PGraphics g)
     {
-        PVector pos = getAbsolutePosition();
+        setTranslation(g);
+        setDirection(g);
 
-        float diameter = 80;
-        float start = -240;
-        float end = 60;
-        float angle = PApplet.map(value, 0, 255, 0, 300);
+        float diaX = width;
+        float diaY = height;
+
+        float radX = diaX / 2f;
+        float radY = diaY / 2f;
+
+        float partSize = 5;
+
+        float angle = PApplet.map(model.getValue(), minimumValue, maximumValue, 0, 300);
 
         int c = isActive ? this.strokeColor.getRGB() : this.strokeColor.darker().getRGB();
 
-        if(isActive)
-            g.fill(this.fillColor.getRGB());
+        if (isActive)
+            g.fill(this.fillColor.getRGB(), opacity);
         else
-            g.fill(this.fillColor.darker().getRGB());
+            g.fill(this.fillColor.darker().getRGB(), opacity);
 
         // draw value
         g.noStroke();
         g.strokeWeight(1.5f);
-        g.arc(pos.x, pos.y, diameter, diameter, PApplet.radians(start), PApplet.radians(start + angle), PApplet.PIE);
+
+        if (displayStyle == NumberDisplayStyle.FILL)
+            g.arc(radX, radY, diaX, diaY, PApplet.radians(start), PApplet.radians(start + angle), PApplet.PIE);
+        else
+            g.arc(radX, radY, diaX, diaY, PApplet.radians(start + angle - partSize), PApplet.radians(start + angle + partSize), PApplet.PIE);
 
         // draw border
-        g.stroke(c);
+        g.stroke(c, opacity);
         g.noFill();
-        g.arc(pos.x, pos.y, diameter, diameter, PApplet.radians(start), PApplet.radians(end), PApplet.PIE);
-        g.fill(0);
-        g.arc(pos.x, pos.y, diameter/2, diameter/2, PApplet.radians(start), PApplet.radians(end), PApplet.PIE);
+        g.arc(radX, radY, diaX, diaY, PApplet.radians(start), PApplet.radians(end), PApplet.PIE);
+        g.fill(0, opacity);
+        g.arc(radX, radY, radX, radY, PApplet.radians(start), PApplet.radians(end), PApplet.PIE);
         g.noStroke();
-        g.ellipse(pos.x, pos.y, diameter/2-1, diameter/2-1);
+        g.ellipse(radX, radY, radX-1, radY-1);
 
-        g.fill(c);
-        g.textAlign(PApplet.CENTER, PApplet.CENTER);
-        g.text(value, pos.x, pos.y);
+        if (showLabel)
+        {
+            g.fill(c, opacity);
+            g.textSize(12);
+            g.textAlign(PApplet.CENTER, PApplet.CENTER);
+            g.text(model.getValue(), radX, radY);
+        }
+
+        resetDirection(g);
+        resetTranslation(g);
 
         super.paint(g);
-    }
-
-    @Override
-    public void registerMidiEvent(MidiEventCoordinator coordinator) {
-        ccHandler.registerMidiEvent(coordinator);
-        nnHandler.registerMidiEvent(coordinator);
-    }
-
-    @Override
-    public void removeMidiEvent(MidiEventCoordinator coordinator) {
-        ccHandler.removeMidiEvent(coordinator);
-        nnHandler.removeMidiEvent(coordinator);
-    }
-
-    @Override
-    public void midiEvent(MidiEvent event) {
-        ccHandler.midiEvent(event);
-        nnHandler.midiEvent(event);
     }
 }

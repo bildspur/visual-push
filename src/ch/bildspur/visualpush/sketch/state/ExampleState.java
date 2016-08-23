@@ -1,5 +1,6 @@
 package ch.bildspur.visualpush.sketch.state;
 
+import ch.bildspur.visualpush.data.DataModel;
 import ch.bildspur.visualpush.event.ButtonHandler;
 import ch.bildspur.visualpush.event.PadHandler;
 import ch.bildspur.visualpush.event.midi.MidiEventListener;
@@ -43,7 +44,7 @@ public class ExampleState extends PushState {
         // todo: clean this up
         tunnel = new Clip(sketch, ContentUtil.getContent("visuals/tunnel_enc.mov"));
         circle = new Clip(sketch, ContentUtil.getContent("visuals/circle_enc.mov"));
-        beeple = new Clip(sketch, ContentUtil.getContent("visuals/starfall_cansik.mov"));
+        beeple = new Clip(sketch, ContentUtil.getContent("visuals/starfall_enc.mov"));
 
         clipList.add(tunnel);
         clipList.add(circle);
@@ -118,9 +119,10 @@ public class ExampleState extends PushState {
             l.registerMidiEvent(sketch.getMidi());
 
         // encoder test
+        DataModel<Integer> model = new DataModel<>(0);
         for(int i = 0; i < 8; i++) {
-            EncoderControl c = new EncoderControl(0, i + 71, 0, i);
-            c.setPosition(new PVector(60 + (120 * i), 40));
+            EncoderControl c = new EncoderControl(model, 0, i + 71, 0, i);
+            c.setPosition(new PVector(20 + (120 * i), 40));
             c.registerMidiEvent(sketch.getMidi());
 
             // set style
@@ -142,6 +144,7 @@ public class ExampleState extends PushState {
             sketch.image(beeple, 0, 0);
 
         if(circle.isPlaying())
-            sketch.blend(circle, 0, 0, circle.width, circle.height, 0, 0, circle.width, circle.height, PApplet.SCREEN);
+            sketch.image(circle, 0, 0);
+            //sketch.blend(circle, 0, 0, circle.width, circle.height, 0, 0, circle.width, circle.height, PApplet.SCREEN);
     }
 }

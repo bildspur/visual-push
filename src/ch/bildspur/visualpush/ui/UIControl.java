@@ -1,5 +1,7 @@
 package ch.bildspur.visualpush.ui;
 
+import ch.bildspur.visualpush.ui.style.Direction;
+import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PVector;
 
@@ -14,15 +16,61 @@ public abstract class UIControl {
     PVector position;
     float width;
     float height;
+    float opacity = 255;
     Color fillColor = Color.GRAY;
     Color strokeColor = Color.WHITE;
     List<UIControl> controls;
     UIControl parent;
+    Direction displayDirection = Direction.HORIZONTAL;
 
     public UIControl()
     {
-        controls = new ArrayList<>();
+        controls = new ArrayList<UIControl>();
         position = new PVector();
+    }
+
+    protected void setDirection(PGraphics g)
+    {
+        if (displayDirection == Direction.HORIZONTAL)
+            return;
+
+        g.rotate(PApplet.radians(-90));
+    }
+
+    protected void resetDirection(PGraphics g)
+    {
+        if (displayDirection == Direction.HORIZONTAL)
+            return;
+
+        g.rotate(PApplet.radians(90));
+    }
+
+    protected void setTranslation(PGraphics g)
+    {
+        PVector pos = getAbsolutePosition();
+        g.translate(pos.x, pos.y);
+    }
+
+    protected void resetTranslation(PGraphics g)
+    {
+        PVector pos = getAbsolutePosition();
+        g.translate(-pos.x, -pos.y);
+    }
+
+    public float getOpacity() {
+        return opacity;
+    }
+
+    public void setOpacity(float opacity) {
+        this.opacity = opacity;
+    }
+
+    public Direction getDisplayDirection() {
+        return displayDirection;
+    }
+
+    public void setDisplayDirection(Direction displayDirection) {
+        this.displayDirection = displayDirection;
     }
 
     public float getWidth() {
@@ -87,14 +135,17 @@ public abstract class UIControl {
 
     public PVector getAbsolutePosition()
     {
-        if(parent != null)
+        if (parent != null)
             return PVector.add(position, parent.getAbsolutePosition());
         return position;
     }
 
     public void paint(PGraphics g)
     {
-        for(UIControl c : controls)
+        for (UIControl c : controls)
+        {
+            // paint
             c.paint(g);
+        }
     }
 }

@@ -1,22 +1,14 @@
 package ch.bildspur.visualpush.sketch;
 
-import ch.bildspur.visualpush.event.ButtonHandler;
-import ch.bildspur.visualpush.event.PadHandler;
-import ch.bildspur.visualpush.event.midi.MidiEventListener;
 import ch.bildspur.visualpush.sketch.controller.*;
 import ch.bildspur.visualpush.sketch.state.PushState;
 import ch.bildspur.visualpush.sketch.state.SplashScreenState;
-import ch.bildspur.visualpush.ui.EncoderControl;
 import processing.core.PApplet;
 import processing.core.PGraphics;
-import processing.core.PVector;
 import processing.opengl.PJOGL;
 import processing.video.Movie;
 
 import javax.sound.midi.MidiMessage;
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by cansik on 16/08/16.
