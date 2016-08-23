@@ -64,10 +64,6 @@ public class RenderSketch extends PApplet {
     public void draw(){
         background(0);
 
-        // draw screen
-        screen.beginDraw();
-        screen.background(0);
-
         // state machine
         if(activeState.isRunning())
             activeState.update();
@@ -79,17 +75,20 @@ public class RenderSketch extends PApplet {
             activeState.setup(this, screen);
         }
 
+        // draw push screen
+        screen.beginDraw();
+        screen.background(0);
+
         // render ui
         ui.renderUI(screen);
 
         // show debug information
         screen.textAlign(PApplet.LEFT, PApplet.BOTTOM);
         screen.text("FPS: " + (frameRate / PUSH_DISPLAY_REFRESH_STEP), 5, 20);
+        screen.endDraw();
 
         textAlign(PApplet.LEFT, PApplet.BOTTOM);
         text("FPS: " + frameRate, 5, 20);
-
-        screen.endDraw();
 
         // send screens
         syphon.sendScreenToSyphon();

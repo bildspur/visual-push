@@ -26,6 +26,7 @@ public class ExampleState extends PushState {
 
     Clip tunnel;
     Clip circle;
+    Clip beeple;
 
     public void setup(PApplet sketch, PGraphics screen)
     {
@@ -40,15 +41,18 @@ public class ExampleState extends PushState {
 
         // test things
         // todo: clean this up
-        tunnel = new Clip(sketch, ContentUtil.getContent("visuals/tunnel.mov"));
-        circle = new Clip(sketch, ContentUtil.getContent("visuals/circle.mov"));
+        tunnel = new Clip(sketch, ContentUtil.getContent("visuals/tunnel_enc.mov"));
+        circle = new Clip(sketch, ContentUtil.getContent("visuals/circle_enc.mov"));
+        beeple = new Clip(sketch, ContentUtil.getContent("visuals/starfall_cansik.mov"));
 
         clipList.add(tunnel);
         clipList.add(circle);
+        clipList.add(beeple);
 
         // add ui
-        sketch.getUi().activeScene.addControl(new ClipViewerControl(tunnel, 50, 80, 80, 60));
-        sketch.getUi().activeScene.addControl(new ClipViewerControl(circle, 200, 80, 80, 60));
+        sketch.getUi().activeScene.addControl(new ClipViewerControl(tunnel, 20, 90, 80, 60));
+        sketch.getUi().activeScene.addControl(new ClipViewerControl(circle, 120, 90, 80, 60));
+        sketch.getUi().activeScene.addControl(new ClipViewerControl(beeple, 220, 90, 80, 60));
 
         // add controllers
         listeners.add(new PadHandler(0, 92) {
@@ -85,6 +89,23 @@ public class ExampleState extends PushState {
             }
         });
 
+        listeners.add(new PadHandler(0, 94) {
+            @Override
+            public void noteOn(int channel, int number, int value) {
+                super.noteOn(channel, number, value);
+                beeple.loop();
+                System.out.println("play beeple!");
+            }
+
+            @Override
+            public void noteOff(int channel, int number, int value) {
+                super.noteOff(channel, number, value);
+                beeple.stop();
+                MidiController.bus.sendNoteOn(9, 94, 127);
+                System.out.println("stop beeple!");
+            }
+        });
+
                 /*
         for(int i = 36; i < 100; i++)
             listeners.add(new PadHandler(0, i));
@@ -99,7 +120,7 @@ public class ExampleState extends PushState {
         // encoder test
         for(int i = 0; i < 8; i++) {
             EncoderControl c = new EncoderControl(0, i + 71, 0, i);
-            c.setPosition(new PVector(60 + (120 * i), 70));
+            c.setPosition(new PVector(60 + (120 * i), 40));
             c.registerMidiEvent(sketch.getMidi());
 
             // set style
@@ -114,7 +135,11 @@ public class ExampleState extends PushState {
     public void update()
     {
         if(tunnel.isPlaying())
-            sketch.blend(tunnel, 0, 0, tunnel.width, tunnel.height, 0, 0, tunnel.width, tunnel.height, PApplet.SCREEN);
+            sketch.image(tunnel, 0, 0);
+            //sketch.blend(tunnel, 0, 0, tunnel.width, tunnel.height, 0, 0, tunnel.width, tunnel.height, PApplet.SCREEN);
+
+        if(beeple.isPlaying())
+            sketch.image(beeple, 0, 0);
 
         if(circle.isPlaying())
             sketch.blend(circle, 0, 0, circle.width, circle.height, 0, 0, circle.width, circle.height, PApplet.SCREEN);
