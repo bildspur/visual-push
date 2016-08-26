@@ -29,4 +29,14 @@ public class DataModel<T>
         for (int i = listener.size() - 1; i >= 0; i--)
             listener.get(i).valueChanged(value);
     }
+
+    public void addListener(DataModelChangeListener<T> l)
+    {
+        listener.add(l);
+    }
+
+    public void removeListener(DataModelChangeListener<T> l)
+    {
+        listener.remove(l);
+    }
 }

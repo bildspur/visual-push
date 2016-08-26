@@ -27,7 +27,10 @@ public class SplashScreenState extends PushState {
     public void update()
     {
         ImageUtil.centerImageAdjusted(sketch.g, bildspurLogo);
+
+        screen.beginDraw();
         ImageUtil.centerImageAdjusted(screen, bildspurLogo);
+        screen.endDraw();
 
         if(bildspurLogo.time() >= bildspurLogo.duration())
             isRunning = false;
@@ -35,6 +38,6 @@ public class SplashScreenState extends PushState {
 
     @Override
     public PushState getNextState() {
-        return new ExampleState();
+        return new ClipLaunchState();
     }
 }

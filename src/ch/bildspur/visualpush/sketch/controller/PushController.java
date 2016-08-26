@@ -4,7 +4,6 @@ import ch.bildspur.visualpush.push.Wayang;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PGraphics;
-import processing.core.PMatrix;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -40,7 +39,6 @@ public class PushController extends ProcessingController {
     public PGraphics getScreen() {
         return screen;
     }
-
     private void renderOnDisplay(PGraphics img)
     {
         graphics.drawImage((Image)img.get().getNative(), 0, 0, null);

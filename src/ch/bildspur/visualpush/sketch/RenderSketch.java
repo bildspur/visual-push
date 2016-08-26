@@ -3,6 +3,7 @@ package ch.bildspur.visualpush.sketch;
 import ch.bildspur.visualpush.sketch.controller.*;
 import ch.bildspur.visualpush.sketch.state.PushState;
 import ch.bildspur.visualpush.sketch.state.SplashScreenState;
+import ch.bildspur.visualpush.video.Clip;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.opengl.PJOGL;
@@ -22,6 +23,7 @@ public class RenderSketch extends PApplet {
     PushController push = new PushController();
     DesignController design = new DesignController();
     UIController ui = new UIController();
+    ClipController clips = new ClipController();
 
     PGraphics screen;
 
@@ -42,6 +44,7 @@ public class RenderSketch extends PApplet {
         midi.setup(this);
         push.setup(this);
         ui.setup(this);
+        clips.setup(this);
 
         // get screen from push lib
         screen = push.getScreen();
@@ -56,6 +59,11 @@ public class RenderSketch extends PApplet {
     public void draw(){
         background(0);
 
+        // clear push screen
+        screen.beginDraw();
+        screen.background(0);
+        screen.endDraw();
+
         // state machine
         if(activeState.isRunning())
             activeState.update();
@@ -67,9 +75,12 @@ public class RenderSketch extends PApplet {
             activeState.setup(this, screen);
         }
 
-        // draw push screen
+        // draw active clips
+        for(Clip c : clips.getActiveClips())
+                c.paint(this.g);
+
+        //draw push screen
         screen.beginDraw();
-        screen.background(0);
 
         // render ui
         ui.renderUI(screen);
@@ -121,6 +132,10 @@ public class RenderSketch extends PApplet {
 
     public UIController getUi() {
         return ui;
+    }
+
+    public ClipController getClips() {
+        return clips;
     }
 }
 

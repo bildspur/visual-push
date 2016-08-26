@@ -7,6 +7,7 @@ import ch.bildspur.visualpush.event.midi.MidiEventListener;
 import ch.bildspur.visualpush.sketch.controller.MidiController;
 import ch.bildspur.visualpush.ui.ClipViewerControl;
 import ch.bildspur.visualpush.ui.EncoderControl;
+import ch.bildspur.visualpush.ui.FaderControl;
 import ch.bildspur.visualpush.util.ContentUtil;
 import ch.bildspur.visualpush.util.ImageUtil;
 import ch.bildspur.visualpush.video.Clip;
@@ -51,9 +52,9 @@ public class ExampleState extends PushState {
         clipList.add(beeple);
 
         // add ui
-        sketch.getUi().activeScene.addControl(new ClipViewerControl(tunnel, 20, 90, 80, 60));
-        sketch.getUi().activeScene.addControl(new ClipViewerControl(circle, 120, 90, 80, 60));
-        sketch.getUi().activeScene.addControl(new ClipViewerControl(beeple, 220, 90, 80, 60));
+        sketch.getUi().getActiveScene().addControl(new ClipViewerControl(tunnel, 20, 90, 80, 60));
+        sketch.getUi().getActiveScene().addControl(new ClipViewerControl(circle, 120, 90, 80, 60));
+        sketch.getUi().getActiveScene().addControl(new ClipViewerControl(beeple, 220, 90, 80, 60));
 
         // add controllers
         listeners.add(new PadHandler(0, 92) {
@@ -120,8 +121,10 @@ public class ExampleState extends PushState {
 
         // encoder test
         DataModel<Integer> model = new DataModel<>(0);
+        model.addListener((v) -> tunnel.speed(PApplet.map(v, 0, 255, 1, 10)));
+
         for(int i = 0; i < 8; i++) {
-            EncoderControl c = new EncoderControl(model, 0, i + 71, 0, i);
+            FaderControl c = new FaderControl(model, 0, i + 71, 0, i);
             c.setPosition(new PVector(20 + (120 * i), 40));
             c.registerMidiEvent(sketch.getMidi());
 
@@ -130,7 +133,7 @@ public class ExampleState extends PushState {
             //c.setFillColor(Color.getHSBColor(i * (1.0f / 8), 1f, 0.94f));
             c.setStrokeColor(new Color(255, 255, 255));
 
-            sketch.getUi().activeScene.addControl(c);
+            sketch.getUi().getActiveScene().addControl(c);
         }
     }
 
@@ -143,8 +146,10 @@ public class ExampleState extends PushState {
         if(beeple.isPlaying())
             sketch.image(beeple, 0, 0);
 
-        if(circle.isPlaying())
+        if(circle.isPlaying()) {
+            sketch.tint(255, 100);
             sketch.image(circle, 0, 0);
+        }
             //sketch.blend(circle, 0, 0, circle.width, circle.height, 0, 0, circle.width, circle.height, PApplet.SCREEN);
     }
 }

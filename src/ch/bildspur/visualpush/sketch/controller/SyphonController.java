@@ -5,6 +5,8 @@ import codeanticode.syphon.SyphonServer;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PImage;
+import processing.opengl.PGraphicsOpenGL;
+import processing.opengl.Texture;
 
 /**
  * Created by cansik on 16/08/16.
@@ -25,14 +27,6 @@ public class SyphonController extends ProcessingController {
 
     public void sendImageToSyphon(PGraphics p)
     {
-        // Flip image back (very bad approach)
-        PImage canvas = new PImage(p.width, p.height);
-        for (int x = 0; x < p.width; x++) {
-            for (int y = 0; y < p.height; y++) {
-                canvas.pixels[((p.height-y-1)*p.width+x)] = p.pixels[y*p.width+x];
-            }
-        }
-
-        server.sendImage(canvas);
+        server.sendImage(p);
     }
 }

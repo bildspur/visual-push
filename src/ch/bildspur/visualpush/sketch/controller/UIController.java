@@ -12,12 +12,20 @@ import java.awt.*;
  * Created by cansik on 18/08/16.
  */
 public class UIController extends ProcessingController {
-    public Scene activeScene;
+    Scene activeScene;
 
     public void setup(PApplet sketch) {
         super.setup(sketch);
 
         activeScene = new Scene();
+    }
+
+    public Scene getActiveScene() {
+        return activeScene;
+    }
+
+    public void setActiveScene(Scene activeScene) {
+        this.activeScene = activeScene;
     }
 
     public void renderUI(PGraphics g)
