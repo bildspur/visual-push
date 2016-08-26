@@ -1,6 +1,7 @@
 package ch.bildspur.visualpush.sketch;
 
 import ch.bildspur.visualpush.sketch.controller.*;
+import ch.bildspur.visualpush.sketch.state.ClipLaunchState;
 import ch.bildspur.visualpush.sketch.state.PushState;
 import ch.bildspur.visualpush.sketch.state.SplashScreenState;
 import ch.bildspur.visualpush.video.Clip;
@@ -109,6 +110,12 @@ public class RenderSketch extends PApplet {
     public void movieEvent(Movie m) {
         if(m.available())
             m.read();
+    }
+
+    public void keyPressed()
+    {
+        activeState = new ClipLaunchState();
+        activeState.setup(this, screen);
     }
 
     // Midi methods

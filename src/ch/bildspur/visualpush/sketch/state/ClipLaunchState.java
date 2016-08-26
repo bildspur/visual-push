@@ -38,6 +38,8 @@ public class ClipLaunchState extends PushState {
         launchScene = new Scene();
         sketch.getUi().setActiveScene(launchScene);
 
+        MidiController.clearLEDs();
+
         switchColumn(activeColumn);
         switchRow(activeRow);
     }

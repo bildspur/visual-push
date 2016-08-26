@@ -61,4 +61,15 @@ public class MidiController extends ProcessingController implements MidiEventCoo
         }
         */
     }
+
+    public static void clearLEDs()
+    {
+        // clear cc
+        for(int i = 3; i <= 119; i++)
+            MidiController.bus.sendControllerChange(0, i, 0);
+
+        // clear nn
+        for(int i = 36; i <= 99; i++)
+            MidiController.bus.sendNoteOff(0, i, 0);
+    }
 }
