@@ -30,9 +30,13 @@ public class ExampleState extends PushState {
     Clip circle;
     Clip beeple;
 
+    MidiController midiController;
+
     public void setup(PApplet sketch, PGraphics screen)
     {
         super.setup(sketch, screen);
+        midiController = this.sketch.getMidi();
+
         setupUI();
     }
 
@@ -69,7 +73,7 @@ public class ExampleState extends PushState {
             public void noteOff(int channel, int number, int value) {
                 super.noteOff(channel, number, value);
                 tunnel.stop();
-                MidiController.bus.sendNoteOn(9, 92, 127);
+                midiController.sendNoteOn(9, 92, 127);
                 System.out.println("stop tunnel!");
             }
         });
@@ -86,7 +90,7 @@ public class ExampleState extends PushState {
             public void noteOff(int channel, int number, int value) {
                 super.noteOff(channel, number, value);
                 circle.stop();
-                MidiController.bus.sendNoteOn(9, 93, 127);
+                midiController.sendNoteOn(9, 93, 127);
                 System.out.println("stop circle!");
             }
         });
@@ -103,7 +107,7 @@ public class ExampleState extends PushState {
             public void noteOff(int channel, int number, int value) {
                 super.noteOff(channel, number, value);
                 beeple.stop();
-                MidiController.bus.sendNoteOn(9, 94, 127);
+                midiController.sendNoteOn(9, 94, 127);
                 System.out.println("stop beeple!");
             }
         });

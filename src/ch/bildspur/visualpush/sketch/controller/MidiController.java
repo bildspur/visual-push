@@ -1,6 +1,7 @@
 package ch.bildspur.visualpush.sketch.controller;
 
 import ch.bildspur.visualpush.Constants;
+import ch.bildspur.visualpush.event.midi.MidiCommand;
 import ch.bildspur.visualpush.event.midi.MidiEventCoordinator;
 import ch.bildspur.visualpush.event.midi.MidiEventListener;
 import ch.bildspur.visualpush.event.midi.MidiEvent;
@@ -17,7 +18,7 @@ import java.util.Map;
  * Created by cansik on 16/08/16.
  */
 public class MidiController extends ProcessingController implements MidiEventCoordinator {
-    public static MidiBus bus;
+    MidiBus bus;
 
     Map<MidiEvent, List<MidiEventListener>> midiListeners;
 
@@ -52,24 +53,43 @@ public class MidiController extends ProcessingController implements MidiEventCoo
         // notify observers
         for(MidiEventListener listener : midiListeners.get(event))
                 listener.midiEvent(event);
-
-        // debug print
-        /*
-        PApplet.print("Status Byte/MIDI Command:"+message.getStatus());
-        for (int i = 1;i < message.getMessage().length;i++) {
-            PApplet.print("Param "+(i+1)+": "+(int)(message.getMessage()[i] & 0xFF));
-        }
-        */
     }
 
-    public static void clearLEDs()
+    public void emulateNoteOn(int channel, int number, int velocity)
+    {
+        midiMessage(new MidiEvent(MidiCommand.NoteOn, channel, number, velocity).getMessage());
+    }
+
+    public void emulateNoteOff(int channel, int number, int velocity)
+    {
+        midiMessage(new MidiEvent(MidiCommand.NoteOff, channel, number, velocity).getMessage());
+    }
+
+    public void emulateControllerChange(int channel, int number, int velocity)
+    {
+        midiMessage(new MidiEvent(MidiCommand.ControlChange, channel, number, velocity).getMessage());
+    }
+
+    public void sendNoteOn(int channel, int number, int velocity) {
+        bus.sendNoteOn(channel, number, velocity);
+    }
+
+    public void sendNoteOff(int channel, int number, int velocity) {
+        bus.sendNoteOff(channel, number, velocity);
+    }
+
+    public void sendControllerChange(int channel, int number, int velocity) {
+        bus.sendControllerChange(channel, number, velocity);
+    }
+
+    public void clearLEDs()
     {
         // clear cc
         for(int i = 3; i <= 119; i++)
-            MidiController.bus.sendControllerChange(0, i, 0);
+            bus.sendControllerChange(0, i, 0);
 
         // clear nn
         for(int i = 36; i <= 99; i++)
-            MidiController.bus.sendNoteOff(0, i, 0);
+            bus.sendNoteOff(0, i, 0);
     }
 }

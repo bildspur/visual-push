@@ -16,6 +16,8 @@ import ch.bildspur.visualpush.video.mode.OneShotMode;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 
+import java.util.Stack;
+
 /**
  * Created by cansik on 26/08/16.
  */
@@ -33,26 +35,35 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
     public static final int DEFAULT_PULSING = 1;
     public static final int PLAY_PULSING = 9;
 
-    ClipController clips;
+    public static final int SOLO_BUTTON = 61;
+
+    ClipController clipController;
+    MidiController midiController;
     Scene launchScene;
     Clip[][] grid;
 
     int activeRow = 7;
     int activeColumn = 0;
 
+    boolean soloMode = true;
+
     public void setup(PApplet sketch, PGraphics screen)
     {
         super.setup(sketch, screen);
-        clips = this.sketch.getClips();
-        grid = clips.getClipGrid();
+
+        // get controllers
+        clipController = this.sketch.getClips();
+        midiController = this.sketch.getMidi();
+        grid = clipController.getClipGrid();
 
         grid[7][0] = new Clip(sketch, ContentUtil.getContent("visuals/tunnel_enc.mov"));
         grid[7][0].setPlayMode(new HoldMode());
         grid[7][1] = new Clip(sketch, ContentUtil.getContent("visuals/circle_enc.mov"));
         grid[7][1].setPlayMode(new OneShotMode());
         grid[7][2] = new Clip(sketch, ContentUtil.getContent("visuals/starfall_enc.mov"));
+        grid[7][3] = new Clip(sketch, ContentUtil.getContent("visuals/tunnel_enc.mov"));
 
-        MidiController.clearLEDs();
+        midiController.clearLEDs();
 
         initMidi();
         initScene();
@@ -66,6 +77,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
 
         switchColumn(activeColumn);
         switchRow(activeRow);
+        switchSoloMode();
     }
 
     void initListener()
@@ -79,6 +91,16 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
 
     void initMidi()
     {
+        // solo mode button
+        new ControlChangeHandler(0, 61)
+        {
+            @Override
+            public void controlChange(int channel, int number, int value) {
+                if(value == 127)
+                    switchSoloMode();
+            }
+        }.registerMidiEvent(sketch.getMidi());
+
         // column selectors
         for(int i = 0; i < ClipController.GRID_SIZE; i++)
             new ControlChangeHandler(0, i + START_COLUMN_MIDI)
@@ -111,7 +133,11 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
                     if (c == null)
                         return;
 
-                    c.getPlayMode().onTriggered(c, clips);
+                    // solo mode
+                    if(soloMode)
+                        applySoloMode(c);
+
+                    c.getPlayMode().onTriggered(c, clipController);
 
                     // set button color
                     setPadColor(number, getPadColor(c));
@@ -124,7 +150,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
                     if (c == null)
                         return;
 
-                    c.getPlayMode().offTriggered(c, clips);
+                    c.getPlayMode().offTriggered(c, clipController);
 
                     // set button color
                     setPadColor(number, getPadColor(c));
@@ -180,24 +206,49 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         return -1;
     }
 
+    void applySoloMode(Clip clip)
+    {
+        for(int u = 0; u < grid.length; u++) {
+            for (int v = 0; v < grid[u].length; v++) {
+                Clip c = grid[u][v];
+                if(c != null && c != clip && c.getPlayMode() instanceof LoopMode && c.isPlaying())
+                {
+                    int index = ((u * grid.length) + v) + START_PAD_MIDI;
+                    midiController.emulateNoteOn(0, index, 127);
+                }
+            }
+        }
+    }
+
     void switchRow(int newNumber)
     {
-        MidiController.bus.sendControllerChange(1, activeRow + START_ROW_MIDI, 0);
+        midiController.sendControllerChange(0, activeRow + START_ROW_MIDI, 0);
         activeRow = newNumber;
-        MidiController.bus.sendControllerChange(1, activeRow + START_ROW_MIDI, COLUMN_ROW_SELECTOR_COLOR);
+        midiController.sendControllerChange(1, activeRow + START_ROW_MIDI, COLUMN_ROW_SELECTOR_COLOR);
     }
 
     void switchColumn(int newNumber)
     {
-        MidiController.bus.sendControllerChange(1, activeColumn + START_COLUMN_MIDI, 0);
+        midiController.sendControllerChange(0, activeColumn + START_COLUMN_MIDI, 0);
         activeColumn = newNumber;
-        MidiController.bus.sendControllerChange(1, activeColumn + START_COLUMN_MIDI, COLUMN_ROW_SELECTOR_COLOR);
+        midiController.sendControllerChange(1, activeColumn + START_COLUMN_MIDI, COLUMN_ROW_SELECTOR_COLOR);
+    }
+
+    void switchSoloMode()
+    {
+        midiController.sendControllerChange(0, SOLO_BUTTON, 0);
+        soloMode = !soloMode;
+
+        if(soloMode)
+            midiController.sendControllerChange(9, SOLO_BUTTON, RGBColor.GREEN().getColor());
+        else
+            midiController.sendControllerChange(1, SOLO_BUTTON, RGBColor.WHITE().getColor());
     }
 
     void setPadColor(int number, PushColor color)
     {
-        MidiController.bus.sendNoteOn(0, number, 0);
-        MidiController.bus.sendNoteOn(color.getPulsing(), number, color.getColor());
+        midiController.sendNoteOn(0, number, 0);
+        midiController.sendNoteOn(color.getPulsing(), number, color.getColor());
     }
 
     public void update()
@@ -208,7 +259,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
     public void clipEnded(Clip clip) {
         if(clip.getPlayMode() instanceof OneShotMode)
         {
-            clips.deactivateClip(clip);
+            clipController.deactivateClip(clip);
 
             int number = getNumberByClip(clip);
             if(number != -1)

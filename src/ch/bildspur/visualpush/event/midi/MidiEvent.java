@@ -26,9 +26,14 @@ public class MidiEvent {
      */
     public MidiEvent(MidiCommand command, int channel, int number)
     {
+        this(command, channel, number, 0);
+    }
+
+    public MidiEvent(MidiCommand command, int channel, int number, int velocity)
+    {
         ShortMessage msg = new ShortMessage();
         try {
-            msg.setMessage(command.getValue(), channel, number, 0);
+            msg.setMessage(command.getValue(), channel, number, velocity);
         } catch (InvalidMidiDataException e) {
             e.printStackTrace();
         }

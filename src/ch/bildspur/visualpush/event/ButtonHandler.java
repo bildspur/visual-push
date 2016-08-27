@@ -13,7 +13,5 @@ public class ButtonHandler extends ControlChangeHandler {
 
     @Override
     public void controlChange(int channel, int number, int value) {
-        System.out.println("Control Changed: " + number + " V:" + value);
-        MidiController.bus.sendControllerChange(1, this.number, 25);
     }
 }

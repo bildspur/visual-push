@@ -30,14 +30,14 @@ public class SplashScreenState extends PushState {
 
         duration = (int)(bildspurLogo.duration() * 45);
 
-        MidiController.clearLEDs();
+        this.sketch.getMidi().clearLEDs();
     }
 
     public void update()
     {
-        MidiController.bus.sendNoteOff(0, lightingLED + LED_START, 0);
+        this.sketch.getMidi().sendNoteOff(0, lightingLED + LED_START, 0);
         lightingLED = (int)(PApplet.map(sketch.frameCount, startFrame, duration, 0, 63));
-        MidiController.bus.sendNoteOn(0, lightingLED + LED_START, 126);
+        this.sketch.getMidi().sendNoteOn(0, lightingLED + LED_START, 126);
 
         ImageUtil.centerImageAdjusted(sketch.g, bildspurLogo);
 
