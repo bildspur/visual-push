@@ -154,7 +154,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
                         return;
 
                     // solo mode
-                    if(soloMode)
+                    if(soloMode && c.getPlayMode() instanceof LoopMode)
                         applySoloMode(c);
 
                     c.getPlayMode().onTriggered(c, clipController);
@@ -245,6 +245,8 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         midiController.sendControllerChange(0, activeRow + START_ROW_MIDI, 0);
         activeRow = newNumber;
         midiController.sendControllerChange(1, activeRow + START_ROW_MIDI, COLUMN_ROW_SELECTOR_COLOR);
+
+        updateClipViewer();
     }
 
     void switchColumn(int newNumber)
