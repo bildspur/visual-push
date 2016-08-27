@@ -29,6 +29,8 @@ public class SplashScreenState extends PushState {
         bildspurLogo.play();
 
         duration = (int)(bildspurLogo.duration() * 45);
+
+        MidiController.clearLEDs();
     }
 
     public void update()

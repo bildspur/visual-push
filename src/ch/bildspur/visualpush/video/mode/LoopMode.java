@@ -1,5 +1,6 @@
 package ch.bildspur.visualpush.video.mode;
 
+import ch.bildspur.visualpush.sketch.controller.ClipController;
 import ch.bildspur.visualpush.video.Clip;
 
 /**
@@ -7,15 +8,24 @@ import ch.bildspur.visualpush.video.Clip;
  */
 public class LoopMode implements PlayMode {
     @Override
-    public void onTriggered(Clip clip) {
-        if(clip.isPlaying())
+    public void onTriggered(Clip clip, ClipController clipController) {
+        if(clip.isPlaying()) {
             clip.stop();
-        else
+            clipController.deactivateClip(clip);
+        }
+        else {
             clip.loop();
+            clipController.activateClip(clip);
+        }
     }
 
     @Override
-    public void offTriggered(Clip clip) {
+    public void offTriggered(Clip clip, ClipController clipController) {
+
+    }
+
+    @Override
+    public void clipStopped(Clip clip, ClipController clipController) {
 
     }
 }

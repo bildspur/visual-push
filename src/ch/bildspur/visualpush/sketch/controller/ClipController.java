@@ -15,7 +15,7 @@ public class ClipController extends ProcessingController {
     Stack<Clip> activeClips = new Stack<>();
     Clip[][] clipGrid;
 
-    public void setup(PApplet sketch, PGraphics screen) {
+    public void setup(PApplet sketch) {
         super.setup(sketch);
 
         initClipGrid();
@@ -33,6 +33,19 @@ public class ClipController extends ProcessingController {
     {
         clipGrid = new Clip[GRID_SIZE][];
         for(int i = 0; i < clipGrid.length; i++)
-            clipGrid[0] = new Clip[GRID_SIZE];
+            clipGrid[i] = new Clip[GRID_SIZE];
+    }
+
+    public void activateClip(Clip c)
+    {
+        if(activeClips.contains(c))
+            deactivateClip(c);
+
+        activeClips.push(c);
+    }
+
+    public void deactivateClip(Clip c)
+    {
+        activeClips.removeElement(c);
     }
 }

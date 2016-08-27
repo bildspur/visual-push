@@ -1,5 +1,6 @@
 package ch.bildspur.visualpush.video.mode;
 
+import ch.bildspur.visualpush.sketch.controller.ClipController;
 import ch.bildspur.visualpush.video.Clip;
 
 /**
@@ -7,12 +8,19 @@ import ch.bildspur.visualpush.video.Clip;
  */
 public class OneShotMode implements PlayMode {
     @Override
-    public void onTriggered(Clip clip) {
+    public void onTriggered(Clip clip, ClipController clipController) {
+        clip.stop();
         clip.play();
+        clipController.activateClip(clip);
     }
 
     @Override
-    public void offTriggered(Clip clip) {
+    public void offTriggered(Clip clip, ClipController clipController) {
 
+    }
+
+    @Override
+    public void clipStopped(Clip clip, ClipController clipController) {
+        clipController.deactivateClip(clip);
     }
 }
