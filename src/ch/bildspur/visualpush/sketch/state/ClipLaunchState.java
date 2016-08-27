@@ -6,6 +6,7 @@ import ch.bildspur.visualpush.push.color.PushColor;
 import ch.bildspur.visualpush.push.color.RGBColor;
 import ch.bildspur.visualpush.sketch.controller.ClipController;
 import ch.bildspur.visualpush.sketch.controller.MidiController;
+import ch.bildspur.visualpush.ui.ClipViewerControl;
 import ch.bildspur.visualpush.ui.Scene;
 import ch.bildspur.visualpush.util.ContentUtil;
 import ch.bildspur.visualpush.video.Clip;
@@ -47,6 +48,8 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
 
     boolean soloMode = true;
 
+    ClipViewerControl[] clipViewer;
+
     public void setup(PApplet sketch, PGraphics screen)
     {
         super.setup(sketch, screen);
@@ -75,6 +78,15 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         launchScene = new Scene();
         sketch.getUi().setActiveScene(launchScene);
 
+        // init clip preview
+        clipViewer = new ClipViewerControl[ClipController.GRID_SIZE];
+        for(int i = 0; i < clipViewer.length; i++)
+        {
+            clipViewer[i] = new ClipViewerControl(20 + (100 * i), 90, 80, 60);
+            launchScene.addControl(clipViewer[i]);
+        }
+        updateClipViewer();
+
         switchColumn(activeColumn);
         switchRow(activeRow);
         switchSoloMode();
@@ -86,6 +98,14 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
             Clip c = getClipByNumber(i);
             if(c != null)
                 c.addStateListener(this);
+        }
+    }
+
+    void updateClipViewer()
+    {
+        for(int i = 0; i < clipViewer.length; i++)
+        {
+            clipViewer[i].setClip(grid[activeRow][i]);
         }
     }
 
