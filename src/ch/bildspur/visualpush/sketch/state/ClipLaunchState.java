@@ -1,6 +1,8 @@
 package ch.bildspur.visualpush.sketch.state;
 
 import ch.bildspur.visualpush.event.ControlChangeHandler;
+import ch.bildspur.visualpush.event.NoteChangeHandler;
+import ch.bildspur.visualpush.event.PadHandler;
 import ch.bildspur.visualpush.event.midi.MidiEventListener;
 import ch.bildspur.visualpush.sketch.controller.ClipController;
 import ch.bildspur.visualpush.sketch.controller.MidiController;
@@ -17,9 +19,11 @@ import java.util.Stack;
 public class ClipLaunchState extends PushState {
     public static final int START_COLUMN_MIDI = 20;
     public static final int START_ROW_MIDI = 36;
+    public static final int START_PAD_MIDI = 36;
 
     ClipController clips;
     Scene launchScene;
+    Clip[][] grid;
 
     int activeRow = 7;
     int activeColumn = 0;
@@ -28,6 +32,7 @@ public class ClipLaunchState extends PushState {
     {
         super.setup(sketch, screen);
         clips = this.sketch.getClips();
+        grid = clips.getClipGrid();
 
         initMidi();
         initScene();
@@ -67,6 +72,38 @@ public class ClipLaunchState extends PushState {
                         switchRow(number - START_ROW_MIDI);
                 }
             }.registerMidiEvent(sketch.getMidi());
+
+        // add pad handler
+        for(int i = 36; i <= 99; i++)
+            new NoteChangeHandler(0, i) {
+                @Override
+                public void noteOn(int channel, int number, int value) {
+                    Clip c = getClipByNumber(number);
+
+                    if(c == null)
+                        return;
+
+                    c.getPlayMode().onTriggered(c);
+                }
+
+                @Override
+                public void noteOff(int channel, int number, int value) {
+                    Clip c = getClipByNumber(number);
+
+                    if(c == null)
+                        return;
+
+                    c.getPlayMode().offTriggered(c);
+                }
+            };
+    }
+
+    Clip getClipByNumber(int number)
+    {
+        int column = (number - START_PAD_MIDI) / ClipController.GRID_SIZE;
+        int row = (number - START_PAD_MIDI) % ClipController.GRID_SIZE;
+
+        return grid[column][row];
     }
 
     void switchRow(int newNumber)

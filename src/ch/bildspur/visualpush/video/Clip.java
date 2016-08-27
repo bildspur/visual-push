@@ -1,6 +1,8 @@
 package ch.bildspur.visualpush.video;
 
 import ch.bildspur.visualpush.util.ImageUtil;
+import ch.bildspur.visualpush.video.mode.LoopMode;
+import ch.bildspur.visualpush.video.mode.PlayMode;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.video.Movie;
@@ -9,7 +11,7 @@ import processing.video.Movie;
  * Created by cansik on 18/08/16.
  */
 public class Clip extends Movie {
-    PlayMode playMode = PlayMode.Normal;
+    PlayMode playMode = new LoopMode();
     float opacity = 255;
     boolean isPlaying = false;
 
