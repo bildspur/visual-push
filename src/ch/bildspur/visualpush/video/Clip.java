@@ -1,32 +1,45 @@
 package ch.bildspur.visualpush.video;
 
-import ch.bildspur.visualpush.data.DataModelChangeListener;
+import ch.bildspur.visualpush.data.DataModel;
 import ch.bildspur.visualpush.util.ImageUtil;
 import ch.bildspur.visualpush.video.event.ClipStateListener;
-import ch.bildspur.visualpush.video.mode.LoopMode;
-import ch.bildspur.visualpush.video.mode.PlayMode;
-import com.jogamp.common.util.ArrayHashSet;
+import ch.bildspur.visualpush.video.playmode.LoopMode;
+import ch.bildspur.visualpush.video.playmode.PlayMode;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PImage;
 import processing.video.Movie;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 
 /**
  * Created by cansik on 18/08/16.
  */
 public class Clip extends Movie {
-    PlayMode playMode = new LoopMode();
-    float opacity = 255;
     PImage previewImage;
+
+    // settings
+    DataModel<Float> opacity;
+    DataModel<Float> startTime;
+    DataModel<Float> endTime;
+    DataModel<Float> speed;
+    DataModel<PlayMode> playMode;
+    DataModel<Float> zoom;
+    DataModel<BlendMode> blendMode;
 
     HashSet<ClipStateListener> stateListener = new HashSet<>();
 
     public Clip(PApplet pApplet, String s) {
         super(pApplet, s);
+
+        // initialize models
+        playMode = new DataModel<>(new LoopMode());
+        opacity = new DataModel<>(255f);
+        startTime = new DataModel<>(0f);
+        speed = new DataModel<>(1f);
+        zoom = new DataModel<>(1f);
+        blendMode = new DataModel<>(BlendMode.NONE);
+        endTime = new DataModel<>(duration());
 
         generatePreviewImage();
     }
@@ -35,17 +48,8 @@ public class Clip extends Movie {
         return playing;
     }
 
-    public PlayMode getPlayMode() {
+    public DataModel<PlayMode> getPlayMode() {
         return playMode;
-    }
-
-    public void setPlayMode(PlayMode playMode) {
-        this.playMode = playMode;
-    }
-
-    public void paint(PGraphics g)
-    {
-        ImageUtil.centerImage(g, this);
     }
 
     public void addStateListener(ClipStateListener l)
@@ -56,6 +60,30 @@ public class Clip extends Movie {
     public void removeStateListener(ClipStateListener l)
     {
         stateListener.remove(l);
+    }
+
+    public DataModel<Float> getOpacity() {
+        return opacity;
+    }
+
+    public DataModel<Float> getStartTime() {
+        return startTime;
+    }
+
+    public DataModel<Float> getEndTime() {
+        return endTime;
+    }
+
+    public DataModel<Float> getSpeed() {
+        return speed;
+    }
+
+    public DataModel<Float> getZoom() {
+        return zoom;
+    }
+
+    public DataModel<BlendMode> getBlendMode() {
+        return blendMode;
     }
 
     public void generatePreviewImage()
@@ -81,10 +109,18 @@ public class Clip extends Movie {
             return previewImage;
     }
 
+    public void paint(PGraphics g)
+    {
+        g.tint(255, opacity.getValue());
+        // draw image
+        ImageUtil.blendImage(g, this, blendMode.getValue());
+    }
+
     @Override
     public void play()
      {
          super.play();
+         jump(startTime.getValue());
      }
 
     @Override

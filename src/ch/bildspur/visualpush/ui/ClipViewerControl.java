@@ -4,11 +4,14 @@ import ch.bildspur.visualpush.video.Clip;
 import processing.core.PGraphics;
 import processing.core.PVector;
 
+import java.awt.*;
+
 /**
  * Created by cansik on 20/08/16.
  */
 public class ClipViewerControl extends UIControl {
     Clip clip;
+    int padding = 1;
 
     public ClipViewerControl(Clip clip)
     {
@@ -27,6 +30,7 @@ public class ClipViewerControl extends UIControl {
         this.position = new PVector(x, y);
         this.width = width;
         this.height = height;
+        this.strokeColor = Color.GRAY;
     }
 
     public Clip getClip() {
@@ -47,7 +51,7 @@ public class ClipViewerControl extends UIControl {
         g.rect(pos.x, pos.y, width, height);
 
         if(clip != null)
-            g.image(clip.getPreview(), pos.x, pos.y, width, height);
+            g.image(clip.getPreview(), pos.x + padding, pos.y + padding, width - padding, height - padding);
 
         super.paint(g);
     }

@@ -1,4 +1,4 @@
-package ch.bildspur.visualpush.video.mode;
+package ch.bildspur.visualpush.video.playmode;
 
 import ch.bildspur.visualpush.sketch.controller.ClipController;
 import ch.bildspur.visualpush.video.Clip;

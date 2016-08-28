@@ -7,17 +7,17 @@ import ch.bildspur.visualpush.push.color.RGBColor;
 import ch.bildspur.visualpush.sketch.controller.ClipController;
 import ch.bildspur.visualpush.sketch.controller.MidiController;
 import ch.bildspur.visualpush.ui.ClipViewerControl;
+import ch.bildspur.visualpush.ui.GridControl;
 import ch.bildspur.visualpush.ui.Scene;
 import ch.bildspur.visualpush.util.ContentUtil;
+import ch.bildspur.visualpush.video.BlendMode;
 import ch.bildspur.visualpush.video.Clip;
 import ch.bildspur.visualpush.video.event.ClipStateListener;
-import ch.bildspur.visualpush.video.mode.HoldMode;
-import ch.bildspur.visualpush.video.mode.LoopMode;
-import ch.bildspur.visualpush.video.mode.OneShotMode;
+import ch.bildspur.visualpush.video.playmode.HoldMode;
+import ch.bildspur.visualpush.video.playmode.LoopMode;
+import ch.bildspur.visualpush.video.playmode.OneShotMode;
 import processing.core.PApplet;
 import processing.core.PGraphics;
-
-import java.util.Stack;
 
 /**
  * Created by cansik on 26/08/16.
@@ -60,9 +60,13 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         grid = clipController.getClipGrid();
 
         grid[7][0] = new Clip(sketch, ContentUtil.getContent("visuals/tunnel_enc.mov"));
-        grid[7][0].setPlayMode(new HoldMode());
+        grid[7][0].getPlayMode().setValue(new HoldMode());
         grid[7][1] = new Clip(sketch, ContentUtil.getContent("visuals/circle_enc.mov"));
-        grid[7][1].setPlayMode(new OneShotMode());
+        grid[7][1].getPlayMode().setValue(new OneShotMode());
+        grid[7][1].getOpacity().setValue(100f);
+        PApplet.println("D: " + grid[7][1].duration());
+        grid[7][1].getEndTime().setValue(grid[7][1].duration() - 0.5f);
+        //grid[7][1].getBlendMode().setValue(BlendMode.SCREEN);
         grid[7][2] = new Clip(sketch, ContentUtil.getContent("visuals/starfall_enc.mov"));
         grid[7][3] = new Clip(sketch, ContentUtil.getContent("visuals/tunnel_enc.mov"));
         grid[6][0] = new Clip(sketch, ContentUtil.getContent("visuals/circle_enc.mov"));
@@ -79,11 +83,13 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         launchScene = new Scene();
         sketch.getUi().setActiveScene(launchScene);
 
+        launchScene.addControl(new GridControl(20, 20));
+
         // init clip preview
         clipViewer = new ClipViewerControl[ClipController.GRID_SIZE];
         for(int i = 0; i < clipViewer.length; i++)
         {
-            clipViewer[i] = new ClipViewerControl(20 + (120 * i), 90, 80, 60);
+            clipViewer[i] = new ClipViewerControl(5 + (120 * i), 90, 105, 60);
             launchScene.addControl(clipViewer[i]);
         }
         updateClipViewer();
@@ -155,10 +161,10 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
                         return;
 
                     // solo mode
-                    if(soloMode && c.getPlayMode() instanceof LoopMode && !c.isPlaying())
+                    if(soloMode && c.getPlayMode().getValue() instanceof LoopMode && !c.isPlaying())
                         applySoloMode(c);
 
-                    c.getPlayMode().onTriggered(c, clipController);
+                    c.getPlayMode().getValue().onTriggered(c, clipController);
 
                     // set button color
                     setPadColor(number, getPadColor(c));
@@ -171,7 +177,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
                     if (c == null)
                         return;
 
-                    c.getPlayMode().offTriggered(c, clipController);
+                    c.getPlayMode().getValue().offTriggered(c, clipController);
 
                     // set button color
                     setPadColor(number, getPadColor(c));
@@ -192,13 +198,13 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         int pulsing = c.isPlaying() ? PLAY_PULSING : DEFAULT_PULSING;
         int color = 0;
 
-        if(c.getPlayMode() instanceof HoldMode)
+        if(c.getPlayMode().getValue() instanceof HoldMode)
             color = HOLD_MODE_COLOR;
 
-        if(c.getPlayMode() instanceof LoopMode)
+        if(c.getPlayMode().getValue() instanceof LoopMode)
             color = LOOP_MODE_COLOR;
 
-        if(c.getPlayMode() instanceof OneShotMode)
+        if(c.getPlayMode().getValue() instanceof OneShotMode)
             color = ONE_SHOT_MODE_COLOR;
 
         return new PushColor(color, pulsing);
@@ -232,7 +238,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         for(int u = 0; u < grid.length; u++) {
             for (int v = 0; v < grid[u].length; v++) {
                 Clip c = grid[u][v];
-                if(c != null && c != clip && c.getPlayMode() instanceof LoopMode && c.isPlaying())
+                if(c != null && c != clip && c.getPlayMode().getValue() instanceof LoopMode && c.isPlaying())
                 {
                     int index = ((u * grid.length) + v) + START_PAD_MIDI;
                     midiController.emulateNoteOn(0, index, 127);
@@ -280,7 +286,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
 
     @Override
     public void clipEnded(Clip clip) {
-        if(clip.getPlayMode() instanceof OneShotMode)
+        if(clip.getPlayMode().getValue() instanceof OneShotMode)
         {
             clipController.deactivateClip(clip);
 
