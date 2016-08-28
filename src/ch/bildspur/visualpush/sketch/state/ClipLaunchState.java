@@ -65,6 +65,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         grid[7][1].setPlayMode(new OneShotMode());
         grid[7][2] = new Clip(sketch, ContentUtil.getContent("visuals/starfall_enc.mov"));
         grid[7][3] = new Clip(sketch, ContentUtil.getContent("visuals/tunnel_enc.mov"));
+        grid[6][0] = new Clip(sketch, ContentUtil.getContent("visuals/circle_enc.mov"));
 
         midiController.clearLEDs();
 
@@ -82,7 +83,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         clipViewer = new ClipViewerControl[ClipController.GRID_SIZE];
         for(int i = 0; i < clipViewer.length; i++)
         {
-            clipViewer[i] = new ClipViewerControl(20 + (100 * i), 90, 80, 60);
+            clipViewer[i] = new ClipViewerControl(20 + (120 * i), 90, 80, 60);
             launchScene.addControl(clipViewer[i]);
         }
         updateClipViewer();
@@ -154,7 +155,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
                         return;
 
                     // solo mode
-                    if(soloMode && c.getPlayMode() instanceof LoopMode)
+                    if(soloMode && c.getPlayMode() instanceof LoopMode && !c.isPlaying())
                         applySoloMode(c);
 
                     c.getPlayMode().onTriggered(c, clipController);
