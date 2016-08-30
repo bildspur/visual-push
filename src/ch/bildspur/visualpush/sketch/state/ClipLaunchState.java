@@ -66,7 +66,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         grid[7][1].getOpacity().setValue(100f);
         PApplet.println("D: " + grid[7][1].duration());
         grid[7][1].getEndTime().setValue(grid[7][1].duration() - 0.5f);
-        //grid[7][1].getBlendMode().setValue(BlendMode.SCREEN);
+        grid[7][1].getBlendMode().setValue(BlendMode.SCREEN);
         grid[7][2] = new Clip(sketch, ContentUtil.getContent("visuals/starfall_enc.mov"));
         grid[7][3] = new Clip(sketch, ContentUtil.getContent("visuals/tunnel_enc.mov"));
         grid[6][0] = new Clip(sketch, ContentUtil.getContent("visuals/circle_enc.mov"));

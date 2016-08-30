@@ -90,7 +90,7 @@ public class RenderSketch extends PApplet {
         outputScreen.beginDraw();
 
         // draw active clips
-        for(Clip c : clips.getActiveClips())
+        for(Clip c : clips.getImmutableClips())
                 c.paint(outputScreen);
 
         outputScreen.endDraw();

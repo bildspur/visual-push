@@ -25,6 +25,13 @@ public class ClipController extends ProcessingController {
         return activeClips;
     }
 
+    public Clip[] getImmutableClips()
+    {
+        Clip[] clips = new Clip[activeClips.size()];
+        activeClips.copyInto(clips);
+        return clips;
+    }
+
     public Clip[][] getClipGrid() {
         return clipGrid;
     }
