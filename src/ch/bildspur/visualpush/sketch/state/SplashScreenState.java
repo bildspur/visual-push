@@ -39,7 +39,9 @@ public class SplashScreenState extends PushState {
         lightingLED = (int)(PApplet.map(sketch.frameCount, startFrame, duration, 0, 63));
         this.sketch.getMidi().sendNoteOn(0, lightingLED + LED_START, 126);
 
-        ImageUtil.centerImageAdjusted(sketch.g, bildspurLogo);
+        sketch.getOutputScreen().beginDraw();
+        ImageUtil.centerImageAdjusted(sketch.getOutputScreen(), bildspurLogo);
+        sketch.getOutputScreen().endDraw();
 
         screen.beginDraw();
         ImageUtil.centerImageAdjusted(screen, bildspurLogo);

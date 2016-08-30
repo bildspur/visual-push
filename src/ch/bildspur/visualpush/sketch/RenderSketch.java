@@ -18,6 +18,8 @@ import javax.sound.midi.MidiMessage;
 public class RenderSketch extends PApplet {
 
     final static int PUSH_DISPLAY_REFRESH_STEP = 2;
+    final static int OUTPUT_WIDTH = 640;
+    final static int OUTPUT_HEIGHT = 480;
 
     SyphonController syphon = new SyphonController();
     MidiController midi = new MidiController();
@@ -26,7 +28,8 @@ public class RenderSketch extends PApplet {
     UIController ui = new UIController();
     ClipController clips = new ClipController();
 
-    PGraphics screen;
+    PGraphics uiScreen;
+    PGraphics outputScreen;
 
     PushState activeState = new SplashScreenState();
 
@@ -39,6 +42,9 @@ public class RenderSketch extends PApplet {
     {
         frameRate(60);
 
+        // create output screen
+        outputScreen = createGraphics(OUTPUT_WIDTH, OUTPUT_HEIGHT, P2D);
+
         // controller setup
         syphon.setup(this);
 
@@ -47,23 +53,28 @@ public class RenderSketch extends PApplet {
         ui.setup(this);
         clips.setup(this);
 
-        // get screen from push lib
-        screen = push.getScreen();
+        // get uiScreen from push lib
+        uiScreen = push.getScreen();
 
-        // setup screen font and design
-        design.setup(this, screen);
+        // setup uiScreen font and design
+        design.setup(this, uiScreen);
 
         // first state setup
-        activeState.setup(this, screen);
+        activeState.setup(this, uiScreen);
     }
 
     public void draw(){
         background(0);
 
-        // clear push screen
-        screen.beginDraw();
-        screen.background(0);
-        screen.endDraw();
+        // clear push uiScreen
+        uiScreen.beginDraw();
+        uiScreen.background(0);
+        uiScreen.endDraw();
+
+        // clear output screen
+        outputScreen.beginDraw();
+        outputScreen.background(0);
+        outputScreen.endDraw();
 
         // state machine
         if(activeState.isRunning())
@@ -73,30 +84,38 @@ public class RenderSketch extends PApplet {
             // change state
             activeState.stop();
             activeState = activeState.getNextState();
-            activeState.setup(this, screen);
+            activeState.setup(this, uiScreen);
         }
+
+        outputScreen.beginDraw();
 
         // draw active clips
         for(Clip c : clips.getActiveClips())
-                c.paint(this.g);
+                c.paint(outputScreen);
 
-        //draw push screen
-        screen.beginDraw();
+        outputScreen.endDraw();
+
+        // send syphon screen
+        syphon.sendImageToSyphon(outputScreen);
+
+        // draw output screen
+        image(outputScreen, 0, 0);
+
+        //draw push uiScreen
+        uiScreen.beginDraw();
 
         // render ui
-        ui.renderUI(screen);
+        ui.renderUI(uiScreen);
 
         // show debug information
-        screen.textAlign(PApplet.LEFT, PApplet.BOTTOM);
-        screen.text("FPS: " + (frameRate / PUSH_DISPLAY_REFRESH_STEP), 5, 20);
-        screen.endDraw();
+        uiScreen.textAlign(PApplet.LEFT, PApplet.BOTTOM);
+        uiScreen.text("FPS: " + (frameRate / PUSH_DISPLAY_REFRESH_STEP), 5, 20);
+        uiScreen.endDraw();
 
         textAlign(PApplet.LEFT, PApplet.BOTTOM);
         text("FPS: " + frameRate, 5, 20);
 
-        // send screens
-        syphon.sendScreenToSyphon();
-
+        // publish push frame
         if(frameCount % PUSH_DISPLAY_REFRESH_STEP == 0)
             push.sendFrame();
     }
@@ -115,7 +134,7 @@ public class RenderSketch extends PApplet {
     public void keyPressed()
     {
         activeState = new ClipLaunchState();
-        activeState.setup(this, screen);
+        activeState.setup(this, uiScreen);
     }
 
     // Midi methods
@@ -143,6 +162,14 @@ public class RenderSketch extends PApplet {
 
     public ClipController getClips() {
         return clips;
+    }
+
+    public PGraphics getUiScreen() {
+        return uiScreen;
+    }
+
+    public PGraphics getOutputScreen() {
+        return outputScreen;
     }
 }
 
