@@ -4,7 +4,6 @@ package ch.bildspur.visualpush.video;
  * Created by cansik on 28/08/16.
  */
 public enum BlendMode {
-    NONE(0),
     BLEND(1),
     ADD(2),
     SUBTRACT(4),

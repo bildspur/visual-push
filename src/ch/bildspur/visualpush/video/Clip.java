@@ -5,9 +5,14 @@ import ch.bildspur.visualpush.util.ImageUtil;
 import ch.bildspur.visualpush.video.event.ClipStateListener;
 import ch.bildspur.visualpush.video.playmode.LoopMode;
 import ch.bildspur.visualpush.video.playmode.PlayMode;
+import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GL2ES2;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PImage;
+import processing.opengl.PGL;
+import processing.opengl.PGraphicsOpenGL;
+import processing.opengl.PJOGL;
 import processing.video.Movie;
 
 import java.util.HashSet;
@@ -38,7 +43,7 @@ public class Clip extends Movie {
         startTime = new DataModel<>(0f);
         speed = new DataModel<>(1f);
         zoom = new DataModel<>(1f);
-        blendMode = new DataModel<>(BlendMode.NONE);
+        blendMode = new DataModel<>(BlendMode.BLEND);
         endTime = new DataModel<>(duration());
 
         generatePreviewImage();
@@ -111,9 +116,14 @@ public class Clip extends Movie {
 
     public void paint(PGraphics g)
     {
+        // set opacity
         g.tint(255, opacity.getValue());
+
+        // set blend mode
+        g.blendMode(blendMode.getValue().getValue());
+
         // draw image
-        ImageUtil.blendImage(g, this, blendMode.getValue());
+        ImageUtil.centerImage(g, this);
     }
 
     @Override
