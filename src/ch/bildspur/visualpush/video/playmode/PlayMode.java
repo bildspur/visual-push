@@ -10,4 +10,19 @@ public interface PlayMode {
     void onTriggered(Clip clip, ClipController clipController);
     void offTriggered(Clip clip, ClipController clipController);
     void clipStopped(Clip clip, ClipController clipController);
+    int getIntValue();
+
+    public static PlayMode getPlayMode(int value)
+    {
+        switch (value) {
+            case 0:
+                return new LoopMode();
+            case 1:
+                return new HoldMode();
+            case 2:
+                return new OneShotMode();
+        }
+
+        return new LoopMode();
+    }
 }

@@ -17,9 +17,12 @@ import javax.sound.midi.MidiMessage;
  */
 public class RenderSketch extends PApplet {
 
-    final static int PUSH_DISPLAY_REFRESH_STEP = 2;
+    final static int PUSH_DISPLAY_REFRESH_STEP = 1;
+
     final static int OUTPUT_WIDTH = 640;
     final static int OUTPUT_HEIGHT = 480;
+
+    final static int FRAME_RATE = 30;
 
     SyphonController syphon = new SyphonController();
     MidiController midi = new MidiController();
@@ -27,6 +30,7 @@ public class RenderSketch extends PApplet {
     DesignController design = new DesignController();
     UIController ui = new UIController();
     ClipController clips = new ClipController();
+    ConfigurationController config = new ConfigurationController();
 
     PGraphics uiScreen;
     PGraphics outputScreen;
@@ -40,7 +44,7 @@ public class RenderSketch extends PApplet {
 
     public void setup()
     {
-        frameRate(60);
+        frameRate(FRAME_RATE);
 
         // create output screen
         outputScreen = createGraphics(OUTPUT_WIDTH, OUTPUT_HEIGHT, P2D);
@@ -52,6 +56,7 @@ public class RenderSketch extends PApplet {
         push.setup(this);
         ui.setup(this);
         clips.setup(this);
+        config.setup(this);
 
         // get uiScreen from push lib
         uiScreen = push.getScreen();
@@ -61,6 +66,12 @@ public class RenderSketch extends PApplet {
 
         // first state setup
         activeState.setup(this, uiScreen);
+
+        // load config async
+        config.load("test.json");
+
+        // start push screen
+        push.open();
     }
 
     public void draw(){
@@ -133,8 +144,16 @@ public class RenderSketch extends PApplet {
 
     public void keyPressed()
     {
-        activeState = new ClipLaunchState();
-        activeState.setup(this, uiScreen);
+        switch (key) {
+            case ' ':
+                activeState = new ClipLaunchState();
+                activeState.setup(this, uiScreen);
+                break;
+            case 's':
+                System.out.println("config saved!");
+                config.save("test.json");
+                break;
+        }
     }
 
     // Midi methods

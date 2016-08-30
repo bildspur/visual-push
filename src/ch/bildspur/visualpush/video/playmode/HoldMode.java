@@ -23,4 +23,9 @@ public class HoldMode implements PlayMode {
     public void clipStopped(Clip clip, ClipController clipController) {
 
     }
+
+    @Override
+    public int getIntValue() {
+        return 1;
+    }
 }

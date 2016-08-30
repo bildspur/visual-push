@@ -17,26 +17,46 @@ public class PushController extends ProcessingController implements Runnable {
 
     static final int PUBLISH_FRAME_RATE = 33;
 
+    Thread publishThread;
+
     BufferedImage pushDisplay = null;
     PGraphics screen;
 
-    volatile int[] buffer = new int[Wayang.DISPLAY_WIDTH * Wayang.DISPLAY_HEIGHT];
+    int[] buffer = new int[Wayang.DISPLAY_WIDTH * Wayang.DISPLAY_HEIGHT];
     int[] drawBuffer = new int[Wayang.DISPLAY_WIDTH * Wayang.DISPLAY_HEIGHT];
+
     final Object bufferLock = new Object();
+
+    volatile boolean publishImage;
 
     public void setup(PApplet sketch){
         super.setup(sketch);
 
+        screen = sketch.createGraphics(Wayang.DISPLAY_WIDTH, Wayang.DISPLAY_HEIGHT, PConstants.P2D);
+    }
+
+    public void open()
+    {
         // connect to push
         pushDisplay = Wayang.open();
-        screen = sketch.createGraphics(Wayang.DISPLAY_WIDTH, Wayang.DISPLAY_HEIGHT, PConstants.P2D);
+
+        publishImage = true;
 
         // run publishing thread
-        new Thread(this).start();
+        publishThread = new Thread(this);
+        publishThread.start();
     }
 
     public void close()
     {
+        publishImage = false;
+
+        try {
+            publishThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         Wayang.close();
     }
 
@@ -49,7 +69,7 @@ public class PushController extends ProcessingController implements Runnable {
     }
 
     public void run() {
-        while (true)
+        while (publishImage)
         {
             renderOnDisplay();
 

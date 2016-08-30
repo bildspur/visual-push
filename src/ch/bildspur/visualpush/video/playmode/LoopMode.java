@@ -28,4 +28,9 @@ public class LoopMode implements PlayMode {
     public void clipStopped(Clip clip, ClipController clipController) {
 
     }
+
+    @Override
+    public int getIntValue() {
+        return 0;
+    }
 }
