@@ -1,14 +1,13 @@
 package ch.bildspur.visualpush.sketch.state;
 
+import ch.bildspur.visualpush.data.DataModel;
 import ch.bildspur.visualpush.event.ControlChangeHandler;
 import ch.bildspur.visualpush.event.NoteChangeHandler;
 import ch.bildspur.visualpush.push.color.PushColor;
 import ch.bildspur.visualpush.push.color.RGBColor;
 import ch.bildspur.visualpush.sketch.controller.ClipController;
 import ch.bildspur.visualpush.sketch.controller.MidiController;
-import ch.bildspur.visualpush.ui.ClipViewerControl;
-import ch.bildspur.visualpush.ui.GridControl;
-import ch.bildspur.visualpush.ui.Scene;
+import ch.bildspur.visualpush.ui.*;
 import ch.bildspur.visualpush.util.ContentUtil;
 import ch.bildspur.visualpush.video.BlendMode;
 import ch.bildspur.visualpush.video.Clip;
@@ -18,6 +17,12 @@ import ch.bildspur.visualpush.video.playmode.LoopMode;
 import ch.bildspur.visualpush.video.playmode.OneShotMode;
 import processing.core.PApplet;
 import processing.core.PGraphics;
+import processing.core.PVector;
+
+import javax.swing.*;
+import java.awt.*;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 /**
  * Created by cansik on 26/08/16.
@@ -71,7 +76,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         launchScene = new Scene();
         sketch.getUi().setActiveScene(launchScene);
 
-        launchScene.addControl(new GridControl(20, 20));
+        //launchScene.addControl(new GridControl(20, 20));
 
         // init clip preview
         clipViewer = new ClipViewerControl[ClipController.GRID_SIZE];
@@ -82,6 +87,28 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         }
         updateClipViewer();
 
+        // test
+        ArrayList<ListElement> items = new ArrayList<>();
+        items.add(new ListElement(1, "BLEND"));
+        items.add(new ListElement(2, "ADD"));
+        items.add(new ListElement(3, "SUBTRACT"));
+        items.add(new ListElement(4, "DARKEST"));
+        items.add(new ListElement(5, "LIGHTEST"));
+        items.add(new ListElement(6, "DIFFERENCE"));
+        items.add(new ListElement(7, "EXCLUSION"));
+        items.add(new ListElement(8, "MULTIPLY"));
+        items.add(new ListElement(9, "SCREEN"));
+        items.add(new ListElement(10, "REPLACE"));
+
+        FaderListControl list = new FaderListControl(new DataModel<Integer>(0), items, 0, 71, 0, 0);
+        list.setPosition(new PVector(20, 20));
+        list.setFillColor(Color.CYAN);
+        list.registerMidiEvent(sketch.getMidi());
+        list.setHeight(60);
+
+        launchScene.addControl(list);
+
+        // set initial values
         switchColumn(activeColumn);
         switchRow(activeRow);
         switchSoloMode();
