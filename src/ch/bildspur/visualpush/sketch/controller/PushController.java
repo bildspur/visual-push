@@ -19,7 +19,6 @@ public class PushController extends ProcessingController implements Runnable {
 
     BufferedImage pushDisplay = null;
     PGraphics screen;
-    Graphics2D graphics;
 
     volatile int[] buffer = new int[Wayang.DISPLAY_WIDTH * Wayang.DISPLAY_HEIGHT];
     int[] drawBuffer = new int[Wayang.DISPLAY_WIDTH * Wayang.DISPLAY_HEIGHT];
@@ -31,8 +30,8 @@ public class PushController extends ProcessingController implements Runnable {
         // connect to push
         pushDisplay = Wayang.open();
         screen = sketch.createGraphics(Wayang.DISPLAY_WIDTH, Wayang.DISPLAY_HEIGHT, PConstants.P2D);
-        graphics = pushDisplay.createGraphics();
 
+        // run publishing thread
         new Thread(this).start();
     }
 
