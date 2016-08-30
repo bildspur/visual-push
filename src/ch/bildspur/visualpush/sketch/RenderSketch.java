@@ -68,7 +68,7 @@ public class RenderSketch extends PApplet {
         activeState.setup(this, uiScreen);
 
         // load config async
-        config.load("test.json");
+        config.loadAsync("test.json");
 
         // start push screen
         push.open();

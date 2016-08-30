@@ -25,6 +25,42 @@ public enum BlendMode {
         this.value = value;
     }
 
+    public static BlendMode fromInteger(int i)
+    {
+        switch (i) {
+            case 1:
+                return BLEND;
+            case 2:
+                return ADD;
+            case 4:
+                return SUBTRACT;
+            case 8:
+                return LIGHTEST;
+            case 16:
+                return DARKEST;
+            case 32:
+                return DIFFERENCE;
+            case 64:
+                return EXCLUSION;
+            case 128:
+                return MULTIPLY;
+            case 256:
+                return SCREEN;
+            case 512:
+                return OVERLAY;
+            case 1024:
+                return HARD_LIGHT;
+            case 2048:
+                return SOFT_LIGHT;
+            case 4096:
+                return DODGE;
+            case 8192:
+                return BURN;
+            default:
+                return BLEND;
+        }
+    }
+
     public int getValue()
     {
         return value;

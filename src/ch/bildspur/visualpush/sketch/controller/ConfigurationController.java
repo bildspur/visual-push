@@ -1,7 +1,9 @@
 package ch.bildspur.visualpush.sketch.controller;
 
 import ch.bildspur.visualpush.sketch.RenderSketch;
+import ch.bildspur.visualpush.video.BlendMode;
 import ch.bildspur.visualpush.video.Clip;
+import ch.bildspur.visualpush.video.playmode.PlayMode;
 import processing.core.PApplet;
 import processing.data.JSONArray;
 import processing.data.JSONObject;
@@ -21,7 +23,31 @@ public class ConfigurationController extends PushController {
 
     public void load(String fileName)
     {
+        JSONObject root = sketch.loadJSONObject(CONFIG_DIR + fileName);
+        JSONArray clips = root.getJSONArray("clips");
 
+        // load clips from config
+        Clip[][] grid = sketch.getClips().getClipGrid();
+        for(int i = 0; i < clips.size(); i++)
+        {
+            JSONObject clipJSON = clips.getJSONObject(i);
+
+            int row = clipJSON.getInt("row");
+            int column = clipJSON.getInt("column");
+
+            grid[row][column] = loadClip(clipJSON);
+        }
+
+        System.out.println(clips.size() + " clips loaded!");
+    }
+
+    public Thread loadAsync(String fileName)
+    {
+        Thread t = new Thread(() -> {
+            load(fileName);
+        });
+        t.start();
+        return t;
     }
 
     public void save(String fileName)
@@ -40,6 +66,21 @@ public class ConfigurationController extends PushController {
 
         // write file
         sketch.saveJSONObject(root, CONFIG_DIR + fileName);
+    }
+
+    private Clip loadClip(JSONObject json)
+    {
+        Clip c = new Clip(sketch, json.getString("path"));
+
+        c.getPlayMode().setValue(PlayMode.getPlayMode(json.getInt("playMode")));
+        c.getOpacity().setValue(json.getFloat("opacity"));
+        c.getStartTime().setValue(json.getFloat("startTime"));
+        c.getEndTime().setValue(json.getFloat("endTime"));
+        c.getSpeed().setValue(json.getFloat("speed"));
+        c.getZoom().setValue(json.getFloat("zoom"));
+        c.getBlendMode().setValue(BlendMode.fromInteger(json.getInt("blendMode")));
+
+        return c;
     }
 
     private JSONObject getClipJSON(Clip clip, int row, int column)

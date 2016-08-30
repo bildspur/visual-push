@@ -59,18 +59,6 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         midiController = this.sketch.getMidi();
         grid = clipController.getClipGrid();
 
-        grid[7][0] = new Clip(sketch, ContentUtil.getContent("visuals/tunnel_enc.mov"));
-        grid[7][0].getPlayMode().setValue(new HoldMode());
-        grid[7][1] = new Clip(sketch, ContentUtil.getContent("visuals/circle_enc.mov"));
-        grid[7][1].getPlayMode().setValue(new OneShotMode());
-        grid[7][1].getOpacity().setValue(100f);
-        PApplet.println("D: " + grid[7][1].duration());
-        grid[7][1].getEndTime().setValue(grid[7][1].duration() - 0.5f);
-        grid[7][1].getBlendMode().setValue(BlendMode.SCREEN);
-        grid[7][2] = new Clip(sketch, ContentUtil.getContent("visuals/starfall_enc.mov"));
-        grid[7][3] = new Clip(sketch, ContentUtil.getContent("visuals/tunnel_enc.mov"));
-        grid[6][0] = new Clip(sketch, ContentUtil.getContent("visuals/circle_enc.mov"));
-
         midiController.clearLEDs();
 
         initMidi();
