@@ -43,6 +43,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
     public static final int PLAY_PULSING = 9;
 
     public static final int SOLO_BUTTON = 61;
+    public static final int ADD_CLIP_BUTTON = 53;
 
     public static final float CONTROL_HEIGHT = 12;
 
@@ -55,6 +56,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
     int activeColumn = 0;
 
     boolean soloMode = true;
+    boolean showAddClip = false;
 
     // controls
     ClipViewerControl[] clipViewer;
@@ -69,6 +71,8 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
     List<MidiEventListener> midiListener = new ArrayList<>();
 
     boolean isInitialised = false;
+
+    PushState nextState = new NullState();
 
     public void setup(PApplet sketch, PGraphics screen)
     {
@@ -90,6 +94,14 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
             isInitialised = true;
             running = true;
         }
+        else
+            updatePadColors();
+
+        // set initial values
+        switchColumn(activeColumn);
+        switchRow(activeRow);
+        switchSoloMode();
+        lightUpLEDs();
 
         // set scene
         this.sketch.getUi().setActiveScene(launchScene);
@@ -127,11 +139,6 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
 
         createClipControls();
         updateClipControls();
-
-        // set initial values
-        switchColumn(activeColumn);
-        switchRow(activeRow);
-        switchSoloMode();
     }
 
     void initListener()
@@ -229,11 +236,11 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
 
         // add labels
         ArrayList<LabelControl> labels = new ArrayList<LabelControl>(){{
-            add(new LabelControl(new DataModel<String>("PLAY MODE")));
-            add(new LabelControl(new DataModel<String>("BLEND MODE")));
-            add(new LabelControl(new DataModel<String>("OPACITY")));
-            add(new LabelControl(new DataModel<String>("ZOOM")));
-            add(new LabelControl(new DataModel<String>("SPEED")));
+            add(new LabelControl(new DataModel<>("PLAY MODE")));
+            add(new LabelControl(new DataModel<>("BLEND MODE")));
+            add(new LabelControl(new DataModel<>("OPACITY")));
+            add(new LabelControl(new DataModel<>("ZOOM")));
+            add(new LabelControl(new DataModel<>("SPEED")));
         }};
 
         for(int i = 0; i < labels.size(); i++)
@@ -255,12 +262,22 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
     void initMidi()
     {
         // solo mode button
-        midiListener.add(new ControlChangeHandler(0, 61)
+        midiListener.add(new ControlChangeHandler(0, SOLO_BUTTON)
         {
             @Override
             public void controlChange(int channel, int number, int value) {
                 if(value == 127)
                     switchSoloMode();
+            }
+        });
+
+        // add clip button
+        midiListener.add(new ControlChangeHandler(0, ADD_CLIP_BUTTON)
+        {
+            @Override
+            public void controlChange(int channel, int number, int value) {
+                if(value == 127)
+                    showAddClip = true;
             }
         });
 
@@ -340,6 +357,20 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         }
     }
 
+    void showDialogState(PushState pushState)
+    {
+        showAddClip = false;
+        nextState = pushState;
+        removeMidiListeners();
+        running = false;
+    }
+
+    @Override
+    public PushState getNextState()
+    {
+        return nextState;
+    }
+
     PushColor getPadColor(Clip c)
     {
         int pulsing = c.isPlaying() ? PLAY_PULSING : DEFAULT_PULSING;
@@ -413,6 +444,11 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         updateClipControls();
     }
 
+    void lightUpLEDs()
+    {
+        midiController.sendControllerChange(1, ADD_CLIP_BUTTON, RGBColor.WHITE().getColor());
+    }
+
     void switchSoloMode()
     {
         midiController.sendControllerChange(0, SOLO_BUTTON, 0);
@@ -432,6 +468,8 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
 
     public void update()
     {
+        if(showAddClip)
+            showDialogState(new AddClipState(ClipLaunchState.this));
     }
 
     @Override
