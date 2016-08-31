@@ -386,6 +386,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         if(clip.getPlayMode().getValue() instanceof OneShotMode)
         {
             clipController.deactivateClip(clip);
+            clip.stop();
 
             int number = getNumberByClip(clip);
             if(number != -1)
