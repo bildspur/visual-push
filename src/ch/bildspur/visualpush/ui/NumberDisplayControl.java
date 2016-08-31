@@ -61,11 +61,11 @@ public abstract class NumberDisplayControl extends UIControl implements MidiEven
         else if(value == 1)
             model.setValue(model.getValue() + stepValue);
 
-        if(model.getValue() > 255)
-            model.setValue(255f);
+        if(model.getValue() > maximumValue)
+            model.setValue(maximumValue);
 
-        if(model.getValue() < 0)
-            model.setValue(0f);
+        if(model.getValue() < minimumValue)
+            model.setValue(minimumValue);
     }
 
     @Override

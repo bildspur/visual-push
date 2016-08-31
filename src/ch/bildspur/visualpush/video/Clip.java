@@ -11,6 +11,7 @@ import processing.core.PImage;
 import processing.video.Movie;
 
 import java.util.HashSet;
+import java.util.Objects;
 
 /**
  * Created by cansik on 18/08/16.
@@ -40,6 +41,10 @@ public class Clip extends Movie {
         zoom = new DataModel<>(1f);
         blendMode = new DataModel<>(BlendMode.BLEND);
         endTime = new DataModel<>(duration());
+
+        speed.addListener(value -> {
+            this.speed(value);
+        });
 
         generatePreviewImage();
     }

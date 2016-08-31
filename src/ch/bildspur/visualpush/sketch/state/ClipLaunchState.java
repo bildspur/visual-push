@@ -42,7 +42,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
 
     public static final int SOLO_BUTTON = 61;
 
-    public static final float CONTROL_HEIGHT = 10;
+    public static final float CONTROL_HEIGHT = 12;
 
     ClipController clipController;
     MidiController midiController;
@@ -183,13 +183,36 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         zoomControl = new FaderControl(new DataModel<>(0f), 0, 74, 0, 3);
         zoomControl.setPosition(new PVector(365, CONTROL_HEIGHT));
         zoomControl.registerMidiEvent(midiController);
+        zoomControl.setStepValue(0.1f);
+        zoomControl.setMinimumValue(-5f);
+        zoomControl.setMaximumValue(5f);
 
         speedControl = new FaderControl(new DataModel<>(0f), 0, 75, 0, 4);
         speedControl.setPosition(new PVector(485, CONTROL_HEIGHT));
         speedControl.registerMidiEvent(midiController);
+        speedControl.setStepValue(0.1f);
+        speedControl.setMinimumValue(-5f);
+        speedControl.setMaximumValue(5f);
 
         // add opacity fader
         new FaderControl(sketch.getGlobalOpacity(), 0, 79, 0, 8).registerMidiEvent(midiController);
+
+        // add labels
+        ArrayList<LabelControl> labels = new ArrayList<LabelControl>(){{
+            add(new LabelControl(new DataModel<String>("PLAY MODE")));
+            add(new LabelControl(new DataModel<String>("BLEND MODE")));
+            add(new LabelControl(new DataModel<String>("OPACITY")));
+            add(new LabelControl(new DataModel<String>("ZOOM")));
+            add(new LabelControl(new DataModel<String>("SPEED")));
+        }};
+
+        for(int i = 0; i < labels.size(); i++)
+        {
+            LabelControl l = labels.get(i);
+            l.setTextSize(8);
+            l.setPosition(new PVector(5 + (i * 120), 0));
+            launchScene.addControl(l);
+        }
 
         // add controls to launch scene
         launchScene.addControl(playModeList);
