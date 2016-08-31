@@ -390,10 +390,10 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
 
     Clip getClipByNumber(int number)
     {
-        int column = (number - START_PAD_MIDI) / ClipController.GRID_SIZE;
-        int row = (number - START_PAD_MIDI) % ClipController.GRID_SIZE;
+        int row = (number - START_PAD_MIDI) / ClipController.GRID_SIZE;
+        int column = (number - START_PAD_MIDI) % ClipController.GRID_SIZE;
 
-        return grid[column][row];
+        return grid[row][column];
     }
 
     /**
@@ -469,7 +469,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
     public void update()
     {
         if(showAddClip)
-            showDialogState(new AddClipState(ClipLaunchState.this));
+            showDialogState(new AddClipState(ClipLaunchState.this, START_PAD_MIDI + (activeRow * grid.length) + activeColumn));
     }
 
     @Override

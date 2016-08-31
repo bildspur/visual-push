@@ -29,4 +29,9 @@ public class RGBColor extends PushColor
     {
         return new PushColor(0);
     }
+
+    public static PushColor YELLOW()
+    {
+        return new PushColor(122);
+    }
 }

@@ -4,10 +4,12 @@ import ch.bildspur.visualpush.data.DataModel;
 import ch.bildspur.visualpush.event.ControlChangeHandler;
 import ch.bildspur.visualpush.event.midi.MidiEventListener;
 import ch.bildspur.visualpush.push.color.RGBColor;
+import ch.bildspur.visualpush.sketch.controller.ClipController;
 import ch.bildspur.visualpush.ui.FaderControl;
 import ch.bildspur.visualpush.ui.FaderListControl;
 import ch.bildspur.visualpush.ui.ListElement;
 import ch.bildspur.visualpush.ui.Scene;
+import ch.bildspur.visualpush.util.ContentUtil;
 import ch.bildspur.visualpush.video.Clip;
 import ch.bildspur.visualpush.video.playmode.PlayMode;
 import processing.core.PApplet;
@@ -15,6 +17,11 @@ import processing.core.PGraphics;
 import processing.core.PVector;
 
 import java.awt.*;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +29,8 @@ import java.util.List;
  * Created by cansik on 31/08/16.
  */
 public class AddClipState extends PushState {
+    public static final int START_PAD_MIDI = 36;
+
     PushState parentState;
     Scene addClipScene;
 
@@ -35,9 +44,12 @@ public class AddClipState extends PushState {
 
     boolean returnToParentState = false;
 
-    public AddClipState(PushState parentState)
+    int padNumber;
+
+    public AddClipState(PushState parentState, int padNumber)
     {
         this.parentState = parentState;
+        this.padNumber = padNumber;
     }
 
     public void setup(PApplet sketch, PGraphics screen) {
@@ -47,6 +59,10 @@ public class AddClipState extends PushState {
         this.sketch.getMidi().sendControllerChange(9, ADD_CLIP_BUTTON, RGBColor.WHITE().getColor());
         this.sketch.getMidi().sendControllerChange(0, UNDO_BUTTON, RGBColor.WHITE().getColor());
 
+
+        // set current clip blinking
+        this.sketch.getMidi().sendNoteOn(9, padNumber, RGBColor.YELLOW().getColor());
+
         addClipScene = new Scene();
 
         midiListener.add(new ControlChangeHandler(0, ADD_CLIP_BUTTON)
@@ -55,7 +71,11 @@ public class AddClipState extends PushState {
             public void controlChange(int channel, int number, int value) {
                 if(value == 127)
                 {
-                    System.out.println("add clip: " + clipFiles.get(clipSelector.getModel().getValue()).getValue());
+                    Path clipPath = (Path)clipFiles.get(clipSelector.getModel().getValue()).getValue();
+                    int row = (padNumber - START_PAD_MIDI) / ClipController.GRID_SIZE;
+                    int column = (padNumber - START_PAD_MIDI) % ClipController.GRID_SIZE;
+
+                    AddClipState.this.sketch.getClips().getClipGrid()[row][column] = new Clip(sketch, clipPath.toString());
                     returnToParentState = true;
                 }
             }
@@ -73,9 +93,10 @@ public class AddClipState extends PushState {
         });
 
         // load clips from folder
-        clipFiles.add(new ListElement("test", "test.mov"));
-        clipFiles.add(new ListElement("test2", "test2.mov"));
-        clipFiles.add(new ListElement("test3", "test3.mov"));
+        for(Path path : fileList(ContentUtil.getContent("visuals/")))
+        {
+            clipFiles.add(new ListElement(path, path.getFileName().toString()));
+        }
 
         // setup controls
         clipSelector = new FaderListControl(new DataModel<>(0), clipFiles, 0, 71, 0, 0);
@@ -92,6 +113,17 @@ public class AddClipState extends PushState {
 
         registerMidiListeners();
     }
+
+     List<Path> fileList(String directory) {
+        List<Path> paths = new ArrayList<>();
+        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(directory))) {
+            for (Path path : directoryStream) {
+                paths.add(path);
+            }
+        } catch (IOException ex) {}
+        return paths;
+    }
+
 
     void returnToParent()
     {
