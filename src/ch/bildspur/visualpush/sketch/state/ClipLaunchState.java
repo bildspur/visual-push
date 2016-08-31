@@ -15,10 +15,12 @@ import ch.bildspur.visualpush.video.event.ClipStateListener;
 import ch.bildspur.visualpush.video.playmode.HoldMode;
 import ch.bildspur.visualpush.video.playmode.LoopMode;
 import ch.bildspur.visualpush.video.playmode.OneShotMode;
+import ch.bildspur.visualpush.video.playmode.PlayMode;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PVector;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 /**
@@ -151,10 +153,28 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         playModeList = new FaderListControl(new DataModel<>(0), playModeItems, 0, 71, 0, 0);
         playModeList.setPosition(new PVector(5, CONTROL_HEIGHT));
         playModeList.registerMidiEvent(midiController);
+        playModeList.setFillColor(Color.CYAN);
+        playModeList.getModel().addListener(value -> {
+            Clip clip = grid[activeRow][activeColumn];
+            if(clip != null) {
+                if(clip.getPlayMode().getValue().getIntValue() == value)
+                    return;
+
+                clip.getPlayMode().setValue(PlayMode.fromInteger(value));
+                setPadColor(START_PAD_MIDI + (activeRow * grid.length) + activeColumn, getPadColor(clip));
+            }
+        });
 
         blendModeList = new FaderListControl(new DataModel<>(0), blendModeItems, 0, 72, 0, 1);
         blendModeList.setPosition(new PVector(125, CONTROL_HEIGHT));
         blendModeList.registerMidiEvent(midiController);
+        blendModeList.setFillColor(Color.CYAN);
+        blendModeList.getModel().addListener(value -> {
+            Clip clip = grid[activeRow][activeColumn];
+            if(clip != null) {
+                clip.getBlendMode().setValue(BlendMode.fromInteger(value));
+            }
+        });
 
         opacitiyControl = new FaderControl(new DataModel<>(0f), 0, 73, 0, 2);
         opacitiyControl.setPosition(new PVector(245, CONTROL_HEIGHT));
@@ -171,7 +191,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         // add opacity fader
         new FaderControl(sketch.getGlobalOpacity(), 0, 79, 0, 8).registerMidiEvent(midiController);
 
-        // add controls to launchscene
+        // add controls to launch scene
         launchScene.addControl(playModeList);
         launchScene.addControl(blendModeList);
         launchScene.addControl(opacitiyControl);
@@ -246,17 +266,25 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
                     setPadColor(number, getPadColor(c));
                 }
             }.registerMidiEvent(sketch.getMidi());
-
-            // set initial color
-            Clip c = getClipByNumber(i);
-
-            if(c != null) {
-                setPadColor(i, getPadColor(c));
-            }
         }
+
+        // updatePadColors
+        updatePadColors();
 
         // add
         PushMidi.setupTouchStrip(midiController.getBus());
+    }
+
+    void updatePadColors()
+    {
+        for(int i = 36; i <= 99; i++) {
+            // set initial color
+            Clip c = getClipByNumber(i);
+
+            if (c != null) {
+                setPadColor(i, getPadColor(c));
+            }
+        }
     }
 
     PushColor getPadColor(Clip c)

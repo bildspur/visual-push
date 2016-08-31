@@ -12,7 +12,7 @@ public interface PlayMode {
     void clipStopped(Clip clip, ClipController clipController);
     int getIntValue();
 
-    public static PlayMode getPlayMode(int value)
+    public static PlayMode fromInteger(int value)
     {
         switch (value) {
             case 0:

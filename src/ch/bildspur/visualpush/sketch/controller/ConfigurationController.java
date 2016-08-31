@@ -72,7 +72,7 @@ public class ConfigurationController extends PushController {
     {
         Clip c = new Clip(sketch, json.getString("path"));
 
-        c.getPlayMode().setValue(PlayMode.getPlayMode(json.getInt("playMode")));
+        c.getPlayMode().setValue(PlayMode.fromInteger(json.getInt("playMode")));
         c.getOpacity().setValue(json.getFloat("opacity"));
         c.getStartTime().setValue(json.getFloat("startTime"));
         c.getEndTime().setValue(json.getFloat("endTime"));
