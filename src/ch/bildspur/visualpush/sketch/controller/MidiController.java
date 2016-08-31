@@ -27,6 +27,7 @@ public class MidiController extends ProcessingController implements MidiEventCoo
 
         midiListeners = new HashMap<>();
         bus = new MidiBus(sketch, Constants.ABLETON_PUSH_MIDI_PORT, Constants.ABLETON_PUSH_MIDI_PORT);
+        bus.sendTimestamps(false);
     }
 
     public void addMidiEventListener(MidiEventListener listener, MidiEvent event)
@@ -91,5 +92,13 @@ public class MidiController extends ProcessingController implements MidiEventCoo
         // clear nn
         for(int i = 36; i <= 99; i++)
             bus.sendNoteOff(0, i, 0);
+    }
+
+    public void sendMessage(byte[] bytes) {
+        bus.sendMessage(bytes);
+    }
+
+    public MidiBus getBus() {
+        return bus;
     }
 }

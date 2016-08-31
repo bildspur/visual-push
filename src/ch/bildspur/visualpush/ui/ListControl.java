@@ -36,6 +36,16 @@ public class ListControl extends UIControl {
         height = 80;
     }
 
+    public void selectItemByValue(Object value)
+    {
+        for(int i = 0; i < items.size(); i++) {
+            if (value == items.get(i).getValue()) {
+                model.setValue(i);
+                return;
+            }
+        }
+    }
+
     public void paint(PGraphics g)
     {
         setTranslation(g);

@@ -1,24 +1,26 @@
 package ch.bildspur.visualpush.ui;
 
+import java.util.Objects;
+
 /**
  * Created by cansik on 30/08/16.
  */
 public class ListElement
 {
-    int value;
+    Object value;
     String name;
 
-    public ListElement(int value, String name)
+    public ListElement(Object value, String name)
     {
         this.value = value;
         this.name = name;
     }
 
-    public int getValue() {
+    public Object getValue() {
         return value;
     }
 
-    public void setValue(int value) {
+    public void setValue(Object value) {
         this.value = value;
     }
 

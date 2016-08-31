@@ -1,5 +1,6 @@
 package ch.bildspur.visualpush.sketch;
 
+import ch.bildspur.visualpush.data.DataModel;
 import ch.bildspur.visualpush.sketch.controller.*;
 import ch.bildspur.visualpush.sketch.state.ClipLaunchState;
 import ch.bildspur.visualpush.sketch.state.PushState;
@@ -36,6 +37,8 @@ public class RenderSketch extends PApplet {
     PGraphics outputScreen;
 
     PushState activeState = new SplashScreenState();
+
+    DataModel<Integer> globalOpacity = new DataModel<>(255);
 
     public void settings(){
         size(640, 480, P2D);
@@ -110,6 +113,7 @@ public class RenderSketch extends PApplet {
         syphon.sendImageToSyphon(outputScreen);
 
         // draw output screen
+        tint(255, globalOpacity.getValue());
         image(outputScreen, 0, 0);
 
         //draw push uiScreen
@@ -189,6 +193,10 @@ public class RenderSketch extends PApplet {
 
     public PGraphics getOutputScreen() {
         return outputScreen;
+    }
+
+    public DataModel<Integer> getGlobalOpacity() {
+        return globalOpacity;
     }
 }
 

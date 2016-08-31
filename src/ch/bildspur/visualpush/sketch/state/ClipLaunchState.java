@@ -3,6 +3,7 @@ package ch.bildspur.visualpush.sketch.state;
 import ch.bildspur.visualpush.data.DataModel;
 import ch.bildspur.visualpush.event.ControlChangeHandler;
 import ch.bildspur.visualpush.event.NoteChangeHandler;
+import ch.bildspur.visualpush.push.PushMidi;
 import ch.bildspur.visualpush.push.color.PushColor;
 import ch.bildspur.visualpush.push.color.RGBColor;
 import ch.bildspur.visualpush.sketch.controller.ClipController;
@@ -15,6 +16,7 @@ import ch.bildspur.visualpush.video.event.ClipStateListener;
 import ch.bildspur.visualpush.video.playmode.HoldMode;
 import ch.bildspur.visualpush.video.playmode.LoopMode;
 import ch.bildspur.visualpush.video.playmode.OneShotMode;
+import javafx.scene.effect.Blend;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PVector;
@@ -87,20 +89,15 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         }
         updateClipViewer();
 
+        // add opacity fader
+        new FaderControl(sketch.getGlobalOpacity(), 0, 79, 0, 8).registerMidiEvent(midiController);
+
         // test
         ArrayList<ListElement> items = new ArrayList<>();
-        items.add(new ListElement(1, "BLEND"));
-        items.add(new ListElement(2, "ADD"));
-        items.add(new ListElement(3, "SUBTRACT"));
-        items.add(new ListElement(4, "DARKEST"));
-        items.add(new ListElement(5, "LIGHTEST"));
-        items.add(new ListElement(6, "DIFFERENCE"));
-        items.add(new ListElement(7, "EXCLUSION"));
-        items.add(new ListElement(8, "MULTIPLY"));
-        items.add(new ListElement(9, "SCREEN"));
-        items.add(new ListElement(10, "REPLACE"));
+        for(BlendMode m : BlendMode.class.getEnumConstants())
+            items.add(new ListElement(m.getValue(), m.name()));
 
-        FaderListControl list = new FaderListControl(new DataModel<Integer>(0), items, 0, 71, 0, 0);
+        FaderListControl list = new FaderListControl(new DataModel<>(0), items, 0, 71, 0, 0);
         list.setPosition(new PVector(20, 20));
         list.setFillColor(Color.CYAN);
         list.registerMidiEvent(sketch.getMidi());
@@ -206,6 +203,9 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
                 setPadColor(i, getPadColor(c));
             }
         }
+
+        // add
+        PushMidi.setupTouchStrip(midiController.getBus());
     }
 
     PushColor getPadColor(Clip c)
