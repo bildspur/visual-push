@@ -61,7 +61,7 @@ public enum BlendMode {
         }
     }
 
-    public int getValue()
+    public int getIntValue()
     {
         return value;
     }

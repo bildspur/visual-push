@@ -9,7 +9,7 @@ import processing.core.PGraphics;
  */
 public class FaderControl extends NumberDisplayControl {
 
-    public FaderControl(DataModel<Integer> model, int ccChannel, int ccNumber, int nnChannel, int nnNumber)
+    public FaderControl(DataModel<Float> model, int ccChannel, int ccNumber, int nnChannel, int nnNumber)
     {
         super(model, ccChannel, ccNumber, nnChannel, nnNumber);
         height = width / 2;

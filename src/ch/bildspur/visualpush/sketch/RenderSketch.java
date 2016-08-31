@@ -38,7 +38,7 @@ public class RenderSketch extends PApplet {
 
     PushState activeState = new SplashScreenState();
 
-    DataModel<Integer> globalOpacity = new DataModel<>(255);
+    DataModel<Float> globalOpacity = new DataModel<>(255f);
 
     public void settings(){
         size(640, 480, P2D);
@@ -123,8 +123,10 @@ public class RenderSketch extends PApplet {
         ui.renderUI(uiScreen);
 
         // show debug information
+        /*
         uiScreen.textAlign(PApplet.LEFT, PApplet.BOTTOM);
         uiScreen.text("FPS: " + (frameRate / PUSH_DISPLAY_REFRESH_STEP), 5, 20);
+        */
         uiScreen.endDraw();
 
         textAlign(PApplet.LEFT, PApplet.BOTTOM);
@@ -195,7 +197,7 @@ public class RenderSketch extends PApplet {
         return outputScreen;
     }
 
-    public DataModel<Integer> getGlobalOpacity() {
+    public DataModel<Float> getGlobalOpacity() {
         return globalOpacity;
     }
 }

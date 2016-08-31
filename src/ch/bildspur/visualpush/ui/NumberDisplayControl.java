@@ -15,17 +15,18 @@ public abstract class NumberDisplayControl extends UIControl implements MidiEven
     private ControlChangeHandler ccHandler;
     private NoteChangeHandler nnHandler;
 
-    DataModel<Integer> model;
+    DataModel<Float> model;
 
     float minimumValue = 0;
     float maximumValue = 255;
+    float stepValue = 1;
 
     NumberDisplayStyle displayStyle = NumberDisplayStyle.FILL;
 
     boolean isActive = false;
     boolean showLabel = true;
 
-    public NumberDisplayControl(DataModel<Integer> model, int ccChannel, int ccNumber, int nnChannel, int nnNumber)
+    public NumberDisplayControl(DataModel<Float> model, int ccChannel, int ccNumber, int nnChannel, int nnNumber)
     {
         super();
 
@@ -56,15 +57,15 @@ public abstract class NumberDisplayControl extends UIControl implements MidiEven
 
     public void controlChange(int channel, int number, int value) {
         if(value == 127)
-            model.setValue(model.getValue() - 1);
+            model.setValue(model.getValue() - stepValue);
         else if(value == 1)
-            model.setValue(model.getValue() + 1);
+            model.setValue(model.getValue() + stepValue);
 
         if(model.getValue() > 255)
-            model.setValue(255);
+            model.setValue(255f);
 
         if(model.getValue() < 0)
-            model.setValue(0);
+            model.setValue(0f);
     }
 
     @Override
@@ -125,11 +126,19 @@ public abstract class NumberDisplayControl extends UIControl implements MidiEven
         this.showLabel = showLabel;
     }
 
-    public DataModel<Integer> getModel() {
+    public DataModel<Float> getModel() {
         return model;
     }
 
-    public void setModel(DataModel<Integer> model) {
+    public void setModel(DataModel<Float> model) {
         this.model = model;
+    }
+
+    public float getStepValue() {
+        return stepValue;
+    }
+
+    public void setStepValue(float stepValue) {
+        this.stepValue = stepValue;
     }
 }

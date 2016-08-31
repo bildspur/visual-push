@@ -9,21 +9,16 @@ import ch.bildspur.visualpush.push.color.RGBColor;
 import ch.bildspur.visualpush.sketch.controller.ClipController;
 import ch.bildspur.visualpush.sketch.controller.MidiController;
 import ch.bildspur.visualpush.ui.*;
-import ch.bildspur.visualpush.util.ContentUtil;
 import ch.bildspur.visualpush.video.BlendMode;
 import ch.bildspur.visualpush.video.Clip;
 import ch.bildspur.visualpush.video.event.ClipStateListener;
 import ch.bildspur.visualpush.video.playmode.HoldMode;
 import ch.bildspur.visualpush.video.playmode.LoopMode;
 import ch.bildspur.visualpush.video.playmode.OneShotMode;
-import javafx.scene.effect.Blend;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PVector;
 
-import javax.swing.*;
-import java.awt.*;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
@@ -45,6 +40,8 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
 
     public static final int SOLO_BUTTON = 61;
 
+    public static final float CONTROL_HEIGHT = 10;
+
     ClipController clipController;
     MidiController midiController;
     Scene launchScene;
@@ -55,7 +52,15 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
 
     boolean soloMode = true;
 
+    // controls
     ClipViewerControl[] clipViewer;
+
+    FaderListControl playModeList;
+    FaderListControl blendModeList;
+
+    FaderControl opacitiyControl;
+    FaderControl zoomControl;
+    FaderControl speedControl;
 
     public void setup(PApplet sketch, PGraphics screen)
     {
@@ -84,26 +89,13 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         clipViewer = new ClipViewerControl[ClipController.GRID_SIZE];
         for(int i = 0; i < clipViewer.length; i++)
         {
-            clipViewer[i] = new ClipViewerControl(5 + (120 * i), 90, 105, 60);
+            clipViewer[i] = new ClipViewerControl(5 + (120 * i), 79, 105, 80);
             launchScene.addControl(clipViewer[i]);
         }
         updateClipViewer();
 
-        // add opacity fader
-        new FaderControl(sketch.getGlobalOpacity(), 0, 79, 0, 8).registerMidiEvent(midiController);
-
-        // test
-        ArrayList<ListElement> items = new ArrayList<>();
-        for(BlendMode m : BlendMode.class.getEnumConstants())
-            items.add(new ListElement(m.getValue(), m.name()));
-
-        FaderListControl list = new FaderListControl(new DataModel<>(0), items, 0, 71, 0, 0);
-        list.setPosition(new PVector(20, 20));
-        list.setFillColor(Color.CYAN);
-        list.registerMidiEvent(sketch.getMidi());
-        list.setHeight(60);
-
-        launchScene.addControl(list);
+        createClipControls();
+        updateClipControls();
 
         // set initial values
         switchColumn(activeColumn);
@@ -126,6 +118,65 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         {
             clipViewer[i].setClip(grid[activeRow][i]);
         }
+    }
+
+    void updateClipControls()
+    {
+        Clip clip = grid[activeRow][activeColumn];
+        if(clip != null)
+        {
+            playModeList.selectItemByValue(clip.getPlayMode().getValue().getIntValue());
+            blendModeList.selectItemByValue(clip.getBlendMode().getValue().getIntValue());
+
+            opacitiyControl.setModel(clip.getOpacity());
+            zoomControl.setModel(clip.getZoom());
+            speedControl.setModel(clip.getSpeed());
+        }
+    }
+
+    void createClipControls()
+    {
+        // setup play modes
+        ArrayList<ListElement> playModeItems = new ArrayList<>();
+        playModeItems.add(new ListElement(0, "LOOP"));
+        playModeItems.add(new ListElement(1, "HOLD"));
+        playModeItems.add(new ListElement(2, "ONE SHOT"));
+
+        // setup blend modes
+        ArrayList<ListElement> blendModeItems = new ArrayList<>();
+        for(BlendMode m : BlendMode.class.getEnumConstants())
+            blendModeItems.add(new ListElement(m.getIntValue(), m.name()));
+
+        // setup controls
+        playModeList = new FaderListControl(new DataModel<>(0), playModeItems, 0, 71, 0, 0);
+        playModeList.setPosition(new PVector(5, CONTROL_HEIGHT));
+        playModeList.registerMidiEvent(midiController);
+
+        blendModeList = new FaderListControl(new DataModel<>(0), blendModeItems, 0, 72, 0, 1);
+        blendModeList.setPosition(new PVector(125, CONTROL_HEIGHT));
+        blendModeList.registerMidiEvent(midiController);
+
+        opacitiyControl = new FaderControl(new DataModel<>(0f), 0, 73, 0, 2);
+        opacitiyControl.setPosition(new PVector(245, CONTROL_HEIGHT));
+        opacitiyControl.registerMidiEvent(midiController);
+
+        zoomControl = new FaderControl(new DataModel<>(0f), 0, 74, 0, 3);
+        zoomControl.setPosition(new PVector(365, CONTROL_HEIGHT));
+        zoomControl.registerMidiEvent(midiController);
+
+        speedControl = new FaderControl(new DataModel<>(0f), 0, 75, 0, 4);
+        speedControl.setPosition(new PVector(485, CONTROL_HEIGHT));
+        speedControl.registerMidiEvent(midiController);
+
+        // add opacity fader
+        new FaderControl(sketch.getGlobalOpacity(), 0, 79, 0, 8).registerMidiEvent(midiController);
+
+        // add controls to launchscene
+        launchScene.addControl(playModeList);
+        launchScene.addControl(blendModeList);
+        launchScene.addControl(opacitiyControl);
+        launchScene.addControl(zoomControl);
+        launchScene.addControl(speedControl);
     }
 
     void initMidi()
@@ -269,6 +320,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         midiController.sendControllerChange(1, activeRow + START_ROW_MIDI, COLUMN_ROW_SELECTOR_COLOR);
 
         updateClipViewer();
+        updateClipControls();
     }
 
     void switchColumn(int newNumber)
@@ -276,6 +328,8 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         midiController.sendControllerChange(0, activeColumn + START_COLUMN_MIDI, 0);
         activeColumn = newNumber;
         midiController.sendControllerChange(1, activeColumn + START_COLUMN_MIDI, COLUMN_ROW_SELECTOR_COLOR);
+
+        updateClipControls();
     }
 
     void switchSoloMode()

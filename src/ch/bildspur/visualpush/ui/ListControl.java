@@ -39,7 +39,7 @@ public class ListControl extends UIControl {
     public void selectItemByValue(Object value)
     {
         for(int i = 0; i < items.size(); i++) {
-            if (value == items.get(i).getValue()) {
+            if (value.equals(items.get(i).getValue())) {
                 model.setValue(i);
                 return;
             }

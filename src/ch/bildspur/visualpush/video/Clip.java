@@ -5,14 +5,9 @@ import ch.bildspur.visualpush.util.ImageUtil;
 import ch.bildspur.visualpush.video.event.ClipStateListener;
 import ch.bildspur.visualpush.video.playmode.LoopMode;
 import ch.bildspur.visualpush.video.playmode.PlayMode;
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2ES2;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PImage;
-import processing.opengl.PGL;
-import processing.opengl.PGraphicsOpenGL;
-import processing.opengl.PJOGL;
 import processing.video.Movie;
 
 import java.util.HashSet;
@@ -120,7 +115,7 @@ public class Clip extends Movie {
         g.tint(255, opacity.getValue());
 
         // set blend mode
-        g.blendMode(blendMode.getValue().getValue());
+        g.blendMode(blendMode.getValue().getIntValue());
 
         // draw image
         ImageUtil.centerImage(g, this);

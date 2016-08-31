@@ -12,7 +12,7 @@ public class EncoderControl extends NumberDisplayControl {
     float start = -240;
     float end = 60;
 
-    public EncoderControl(DataModel<Integer> model, int ccChannel, int ccNumber, int nnChannel, int nnNumber)
+    public EncoderControl(DataModel<Float> model, int ccChannel, int ccNumber, int nnChannel, int nnNumber)
     {
         super(model, ccChannel, ccNumber, nnChannel, nnNumber);
     }

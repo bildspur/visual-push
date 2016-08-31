@@ -97,7 +97,7 @@ public class ConfigurationController extends PushController {
         json.setFloat("endTime", clip.getStartTime().getValue());
         json.setFloat("speed", clip.getSpeed().getValue());
         json.setFloat("zoom", clip.getZoom().getValue());
-        json.setInt("blendMode", clip.getBlendMode().getValue().getValue());
+        json.setInt("blendMode", clip.getBlendMode().getValue().getIntValue());
 
         return json;
     }
