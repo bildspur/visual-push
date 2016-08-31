@@ -3,6 +3,7 @@ package ch.bildspur.visualpush.sketch.state;
 import ch.bildspur.visualpush.data.DataModel;
 import ch.bildspur.visualpush.event.ControlChangeHandler;
 import ch.bildspur.visualpush.event.NoteChangeHandler;
+import ch.bildspur.visualpush.event.midi.MidiEventListener;
 import ch.bildspur.visualpush.push.PushMidi;
 import ch.bildspur.visualpush.push.color.PushColor;
 import ch.bildspur.visualpush.push.color.RGBColor;
@@ -20,8 +21,9 @@ import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PVector;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by cansik on 26/08/16.
@@ -64,6 +66,10 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
     FaderControl zoomControl;
     FaderControl speedControl;
 
+    List<MidiEventListener> midiListener = new ArrayList<>();
+
+    boolean isInitialised = false;
+
     public void setup(PApplet sketch, PGraphics screen)
     {
         super.setup(sketch, screen);
@@ -75,15 +81,38 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
 
         midiController.clearLEDs();
 
-        initMidi();
-        initScene();
-        initListener();
+        // only do init the first time
+        if(!isInitialised) {
+            initMidi();
+            initScene();
+            initListener();
+
+            isInitialised = true;
+            running = true;
+        }
+
+        // set scene
+        this.sketch.getUi().setActiveScene(launchScene);
+
+        // init midi listeners
+        registerMidiListeners();
+    }
+
+    void registerMidiListeners()
+    {
+        for(MidiEventListener listener : midiListener)
+            listener.registerMidiEvent(midiController);
+    }
+
+    void removeMidiListeners()
+    {
+        for(MidiEventListener listener : midiListener)
+            listener.removeMidiEvent(midiController);
     }
 
     void initScene()
     {
         launchScene = new Scene();
-        sketch.getUi().setActiveScene(launchScene);
 
         //launchScene.addControl(new GridControl(20, 20));
 
@@ -152,7 +181,6 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         // setup controls
         playModeList = new FaderListControl(new DataModel<>(0), playModeItems, 0, 71, 0, 0);
         playModeList.setPosition(new PVector(5, CONTROL_HEIGHT));
-        playModeList.registerMidiEvent(midiController);
         playModeList.setFillColor(Color.CYAN);
         playModeList.getModel().addListener(value -> {
             Clip clip = grid[activeRow][activeColumn];
@@ -164,10 +192,10 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
                 setPadColor(START_PAD_MIDI + (activeRow * grid.length) + activeColumn, getPadColor(clip));
             }
         });
+        midiListener.add(playModeList);
 
         blendModeList = new FaderListControl(new DataModel<>(0), blendModeItems, 0, 72, 0, 1);
         blendModeList.setPosition(new PVector(125, CONTROL_HEIGHT));
-        blendModeList.registerMidiEvent(midiController);
         blendModeList.setFillColor(Color.CYAN);
         blendModeList.getModel().addListener(value -> {
             Clip clip = grid[activeRow][activeColumn];
@@ -175,27 +203,29 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
                 clip.getBlendMode().setValue(BlendMode.fromInteger(value));
             }
         });
+        midiListener.add(blendModeList);
 
         opacitiyControl = new FaderControl(new DataModel<>(0f), 0, 73, 0, 2);
         opacitiyControl.setPosition(new PVector(245, CONTROL_HEIGHT));
-        opacitiyControl.registerMidiEvent(midiController);
+        midiListener.add(opacitiyControl);
+
 
         zoomControl = new FaderControl(new DataModel<>(0f), 0, 74, 0, 3);
         zoomControl.setPosition(new PVector(365, CONTROL_HEIGHT));
-        zoomControl.registerMidiEvent(midiController);
         zoomControl.setStepValue(0.1f);
         zoomControl.setMinimumValue(-5f);
         zoomControl.setMaximumValue(5f);
+        midiListener.add(zoomControl);
 
         speedControl = new FaderControl(new DataModel<>(0f), 0, 75, 0, 4);
         speedControl.setPosition(new PVector(485, CONTROL_HEIGHT));
-        speedControl.registerMidiEvent(midiController);
         speedControl.setStepValue(0.1f);
         speedControl.setMinimumValue(-5f);
         speedControl.setMaximumValue(5f);
+        midiListener.add(speedControl);
 
         // add opacity fader
-        new FaderControl(sketch.getGlobalOpacity(), 0, 79, 0, 8).registerMidiEvent(midiController);
+        midiListener.add(new FaderControl(sketch.getGlobalOpacity(), 0, 79, 0, 8));
 
         // add labels
         ArrayList<LabelControl> labels = new ArrayList<LabelControl>(){{
@@ -225,40 +255,40 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
     void initMidi()
     {
         // solo mode button
-        new ControlChangeHandler(0, 61)
+        midiListener.add(new ControlChangeHandler(0, 61)
         {
             @Override
             public void controlChange(int channel, int number, int value) {
                 if(value == 127)
                     switchSoloMode();
             }
-        }.registerMidiEvent(sketch.getMidi());
+        });
 
         // column selectors
         for(int i = 0; i < ClipController.GRID_SIZE; i++)
-            new ControlChangeHandler(0, i + START_COLUMN_MIDI)
+            midiListener.add(new ControlChangeHandler(0, i + START_COLUMN_MIDI)
             {
                 @Override
                 public void controlChange(int channel, int number, int value) {
                     if(value == 127)
                         switchColumn(number - START_COLUMN_MIDI);
                 }
-            }.registerMidiEvent(sketch.getMidi());
+            });
 
         // row selectors
         for(int i = 0; i < ClipController.GRID_SIZE; i++)
-            new ControlChangeHandler(0, i + START_ROW_MIDI)
+            midiListener.add(new ControlChangeHandler(0, i + START_ROW_MIDI)
             {
                 @Override
                 public void controlChange(int channel, int number, int value) {
                     if(value == 127)
                         switchRow(number - START_ROW_MIDI);
                 }
-            }.registerMidiEvent(sketch.getMidi());
+            });
 
         // add pad handler
         for(int i = 36; i <= 99; i++) {
-            new NoteChangeHandler(0, i) {
+            midiListener.add(new NoteChangeHandler(0, i) {
                 @Override
                 public void noteOn(int channel, int number, int value) {
                     Clip c = getClipByNumber(number);
@@ -288,7 +318,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
                     // set button color
                     setPadColor(number, getPadColor(c));
                 }
-            }.registerMidiEvent(sketch.getMidi());
+            });
         }
 
         // updatePadColors

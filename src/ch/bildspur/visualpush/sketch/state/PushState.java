@@ -10,17 +10,17 @@ import processing.core.PGraphics;
 public abstract class PushState {
     RenderSketch sketch;
     PGraphics screen;
-    boolean isRunning;
+    boolean running;
 
     public boolean isRunning() {
-        return isRunning;
+        return running;
     }
 
     public void setup(PApplet sketch, PGraphics screen)
     {
         this.sketch = (RenderSketch)sketch;
         this.screen = screen;
-        isRunning = true;
+        running = true;
     }
 
     public void update() {}
