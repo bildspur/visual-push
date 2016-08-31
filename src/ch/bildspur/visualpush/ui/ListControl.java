@@ -23,6 +23,7 @@ public class ListControl extends UIControl {
     String arrowSignLeft = "\u25C4";
 
     boolean isActive = false;
+    boolean alwaysActive = false;
 
     public ListControl(DataModel<Integer> model,
                        List<ListElement> items)
@@ -52,7 +53,7 @@ public class ListControl extends UIControl {
         setDirection(g);
 
         // item
-        if (isActive)
+        if (isActive || alwaysActive)
             activePaint(g);
         else
             inactivePaint(g, true);
@@ -177,5 +178,13 @@ public class ListControl extends UIControl {
 
     public boolean isActive() {
         return isActive;
+    }
+
+    public boolean isAlwaysActive() {
+        return alwaysActive;
+    }
+
+    public void setAlwaysActive(boolean alwaysActive) {
+        this.alwaysActive = alwaysActive;
     }
 }

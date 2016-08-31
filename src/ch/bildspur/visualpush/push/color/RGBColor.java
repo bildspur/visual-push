@@ -30,8 +30,8 @@ public class RGBColor extends PushColor
         return new PushColor(0);
     }
 
-    public static PushColor YELLOW()
+    public static PushColor PINK()
     {
-        return new PushColor(122);
+        return new PushColor(25);
     }
 }

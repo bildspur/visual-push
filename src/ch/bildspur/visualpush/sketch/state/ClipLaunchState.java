@@ -43,7 +43,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
     public static final int PLAY_PULSING = 9;
 
     public static final int SOLO_BUTTON = 61;
-    public static final int ADD_CLIP_BUTTON = 53;
+    public static final int CLIP_BUTTON = 113;
 
     public static final float CONTROL_HEIGHT = 12;
 
@@ -272,7 +272,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         });
 
         // add clip button
-        midiListener.add(new ControlChangeHandler(0, ADD_CLIP_BUTTON)
+        midiListener.add(new ControlChangeHandler(0, CLIP_BUTTON)
         {
             @Override
             public void controlChange(int channel, int number, int value) {
@@ -446,7 +446,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
 
     void lightUpLEDs()
     {
-        midiController.sendControllerChange(1, ADD_CLIP_BUTTON, RGBColor.WHITE().getColor());
+        midiController.sendControllerChange(1, CLIP_BUTTON, RGBColor.WHITE().getColor());
     }
 
     void switchSoloMode()

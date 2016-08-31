@@ -5,13 +5,11 @@ import ch.bildspur.visualpush.event.ControlChangeHandler;
 import ch.bildspur.visualpush.event.midi.MidiEventListener;
 import ch.bildspur.visualpush.push.color.RGBColor;
 import ch.bildspur.visualpush.sketch.controller.ClipController;
-import ch.bildspur.visualpush.ui.FaderControl;
 import ch.bildspur.visualpush.ui.FaderListControl;
 import ch.bildspur.visualpush.ui.ListElement;
 import ch.bildspur.visualpush.ui.Scene;
 import ch.bildspur.visualpush.util.ContentUtil;
 import ch.bildspur.visualpush.video.Clip;
-import ch.bildspur.visualpush.video.playmode.PlayMode;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PVector;
@@ -40,7 +38,9 @@ public class AddClipState extends PushState {
     FaderListControl clipSelector;
 
     public static final int ADD_CLIP_BUTTON = 53;
-    public static final int UNDO_BUTTON = 119;
+    public static final int CLIP_BUTTON = 113;
+    public static final int DELETE_CLIP_BUTTON = 118;
+
 
     boolean returnToParentState = false;
 
@@ -56,12 +56,14 @@ public class AddClipState extends PushState {
         super.setup(sketch, screen);
 
         this.sketch.getMidi().clearLEDs();
-        this.sketch.getMidi().sendControllerChange(9, ADD_CLIP_BUTTON, RGBColor.WHITE().getColor());
-        this.sketch.getMidi().sendControllerChange(0, UNDO_BUTTON, RGBColor.WHITE().getColor());
+
+        this.sketch.getMidi().sendControllerChange(9, CLIP_BUTTON, RGBColor.WHITE().getColor());
+        this.sketch.getMidi().sendControllerChange(0, ADD_CLIP_BUTTON, RGBColor.GREEN().getColor());
+        this.sketch.getMidi().sendControllerChange(0, DELETE_CLIP_BUTTON, RGBColor.RED().getColor());
 
 
         // set current clip blinking
-        this.sketch.getMidi().sendNoteOn(9, padNumber, RGBColor.YELLOW().getColor());
+        this.sketch.getMidi().sendNoteOn(9, padNumber, RGBColor.PINK().getColor());
 
         addClipScene = new Scene();
 
@@ -75,13 +77,21 @@ public class AddClipState extends PushState {
                     int row = (padNumber - START_PAD_MIDI) / ClipController.GRID_SIZE;
                     int column = (padNumber - START_PAD_MIDI) % ClipController.GRID_SIZE;
 
+                    // delete old clip if exists
+                    Clip clip = AddClipState.this.sketch.getClips().getClipGrid()[row][column];
+                    if(clip != null) {
+                        clip.stop();
+                        AddClipState.this.sketch.getClips().deactivateClip(clip);
+                        AddClipState.this.sketch.getClips().getClipGrid()[row][column] = null;
+                    }
+
                     AddClipState.this.sketch.getClips().getClipGrid()[row][column] = new Clip(sketch, clipPath.toString());
                     returnToParentState = true;
                 }
             }
         });
 
-        midiListener.add(new ControlChangeHandler(0, UNDO_BUTTON)
+        midiListener.add(new ControlChangeHandler(0, CLIP_BUTTON)
         {
             @Override
             public void controlChange(int channel, int number, int value) {
@@ -92,6 +102,28 @@ public class AddClipState extends PushState {
             }
         });
 
+        midiListener.add(new ControlChangeHandler(0, DELETE_CLIP_BUTTON)
+        {
+            @Override
+            public void controlChange(int channel, int number, int value) {
+                if(value == 127)
+                {
+                    int row = (padNumber - START_PAD_MIDI) / ClipController.GRID_SIZE;
+                    int column = (padNumber - START_PAD_MIDI) % ClipController.GRID_SIZE;
+
+                    Clip clip = AddClipState.this.sketch.getClips().getClipGrid()[row][column];
+                    if(clip != null) {
+                        clip.stop();
+                        AddClipState.this.sketch.getClips().deactivateClip(clip);
+                        AddClipState.this.sketch.getClips().getClipGrid()[row][column] = null;
+                    }
+
+                    returnToParentState = true;
+                }
+            }
+        });
+
+
         // load clips from folder
         for(Path path : fileList(ContentUtil.getContent("visuals/")))
         {
@@ -101,7 +133,8 @@ public class AddClipState extends PushState {
         // setup controls
         clipSelector = new FaderListControl(new DataModel<>(0), clipFiles, 0, 71, 0, 0);
         clipSelector.setPosition(new PVector(5, 5));
-        clipSelector.setWidth(900);
+        clipSelector.setAlwaysActive(true);
+        clipSelector.setWidth(950);
         clipSelector.setHeight(150);
         clipSelector.setFillColor(Color.CYAN);
         midiListener.add(clipSelector);
