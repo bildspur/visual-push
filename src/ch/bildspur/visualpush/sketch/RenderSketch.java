@@ -18,10 +18,12 @@ import javax.sound.midi.MidiMessage;
  */
 public class RenderSketch extends PApplet {
 
+    final static String CONFIG = "cuttingedge.json";
+
     final static int PUSH_DISPLAY_REFRESH_STEP = 1;
 
-    final static int OUTPUT_WIDTH = 640;
-    final static int OUTPUT_HEIGHT = 480;
+    final static int OUTPUT_WIDTH = 1280;
+    final static int OUTPUT_HEIGHT = 720;
 
     final static int FRAME_RATE = 30;
 
@@ -40,8 +42,10 @@ public class RenderSketch extends PApplet {
 
     DataModel<Float> globalOpacity = new DataModel<>(255f);
 
+    boolean showOutput = true;
+
     public void settings(){
-        size(640, 480, P2D);
+        size(OUTPUT_WIDTH, OUTPUT_HEIGHT, P2D);
         PJOGL.profile = 1;
     }
 
@@ -71,7 +75,7 @@ public class RenderSketch extends PApplet {
         activeState.setup(this, uiScreen);
 
         // load config async
-        config.loadAsync("test.json");
+        config.loadAsync(CONFIG);
 
         // start push screen
         push.open();
@@ -105,6 +109,7 @@ public class RenderSketch extends PApplet {
 
         // draw active clips
         for(Clip c : clips.getImmutableClips())
+            if(c != null)
                 c.paint(outputScreen);
 
         outputScreen.endDraw();
@@ -113,8 +118,10 @@ public class RenderSketch extends PApplet {
         syphon.sendImageToSyphon(outputScreen);
 
         // draw output screen
-        tint(255, globalOpacity.getValue());
-        image(outputScreen, 0, 0);
+        if(showOutput) {
+            tint(255, globalOpacity.getValue());
+            image(outputScreen, 0, 0);
+        }
 
         //draw push uiScreen
         uiScreen.beginDraw();
@@ -151,13 +158,16 @@ public class RenderSketch extends PApplet {
     public void keyPressed()
     {
         switch (key) {
+            case 'h':
+                showOutput = !showOutput;
+                break;
             case ' ':
                 activeState = new ClipLaunchState();
                 activeState.setup(this, uiScreen);
                 break;
             case 's':
                 System.out.println("config saved!");
-                config.save("test.json");
+                config.save(CONFIG);
                 break;
         }
     }

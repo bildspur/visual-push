@@ -405,7 +405,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
     {
         for(int u = 0; u < grid.length; u++)
             for(int v = 0; v < grid[u].length; v++)
-                if(grid[u][v] == c)
+                if(grid[u][v].equals(c))
                     return ((u * grid.length) + v) + START_PAD_MIDI;
 
         return -1;

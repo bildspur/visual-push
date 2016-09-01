@@ -44,8 +44,9 @@ public class SplashScreenState extends PushState {
         ImageUtil.centerImageAdjusted(screen, bildspurLogo);
         screen.endDraw();
 
-        if(bildspurLogo.time() >= bildspurLogo.duration())
+        if(bildspurLogo.time() >= bildspurLogo.duration()) {
             running = false;
+        }
     }
 
     @Override
