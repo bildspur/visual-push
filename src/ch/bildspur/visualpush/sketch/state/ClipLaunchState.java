@@ -205,7 +205,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         blendModeList.getModel().addListener(value -> {
             Clip clip = grid[activeRow][activeColumn];
             if(clip != null) {
-                clip.getBlendMode().setValue(BlendMode.fromInteger(value));
+                clip.getBlendMode().setValue(BlendMode.fromInteger((int)blendModeItems.get(value).getValue()));
             }
         });
         midiListener.add(blendModeList);
