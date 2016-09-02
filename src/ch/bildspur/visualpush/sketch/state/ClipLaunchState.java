@@ -55,7 +55,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
     int activeRow = 7;
     int activeColumn = 0;
 
-    boolean soloMode = true;
+    boolean soloMode = false;
     boolean showAddClip = false;
 
     // controls
@@ -100,7 +100,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         // set initial values
         switchColumn(activeColumn);
         switchRow(activeRow);
-        switchSoloMode();
+
         lightUpLEDs();
 
         // set scene
@@ -450,6 +450,11 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
     void lightUpLEDs()
     {
         midiController.sendControllerChange(1, CLIP_BUTTON, RGBColor.WHITE().getColor());
+
+        if(soloMode)
+            midiController.sendControllerChange(9, SOLO_BUTTON, RGBColor.GREEN().getColor());
+        else
+            midiController.sendControllerChange(1, SOLO_BUTTON, RGBColor.WHITE().getColor());
     }
 
     void switchSoloMode()
