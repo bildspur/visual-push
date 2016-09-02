@@ -214,6 +214,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
 
         opacitiyControl = new FaderControl(new DataModel<>(0f), 0, 73, 0, 2);
         opacitiyControl.setPosition(new PVector(245, CONTROL_HEIGHT));
+        opacitiyControl.setFillColor(Color.decode("#56FF64"));
         midiListener.add(opacitiyControl);
 
 
@@ -229,10 +230,14 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         speedControl.setStepValue(0.1f);
         speedControl.setMinimumValue(0f);
         speedControl.setMaximumValue(5f);
+        speedControl.setFillColor(Color.decode("#269AE0"));
         midiListener.add(speedControl);
 
         // add opacity fader
-        midiListener.add(new FaderControl(sketch.getGlobalOpacity(), 0, 79, 0, 8));
+        FaderControl globalOpacity = new FaderControl(sketch.getGlobalOpacity(), 0, 78, 0, 7);
+        globalOpacity.setPosition(new PVector(845, CONTROL_HEIGHT));
+        globalOpacity.setFillColor(Color.decode("#23D5A7"));
+        midiListener.add(globalOpacity);
 
         // add labels
         ArrayList<LabelControl> labels = new ArrayList<LabelControl>(){{
@@ -257,6 +262,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         launchScene.addControl(opacitiyControl);
         launchScene.addControl(zoomControl);
         launchScene.addControl(speedControl);
+        launchScene.addControl(globalOpacity);
     }
 
     void initMidi()
