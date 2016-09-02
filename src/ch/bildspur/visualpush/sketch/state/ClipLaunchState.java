@@ -403,10 +403,13 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
      */
     int getNumberByClip(Clip c)
     {
-        for(int u = 0; u < grid.length; u++)
-            for(int v = 0; v < grid[u].length; v++)
-                if(grid[u][v].equals(c))
+        for(int u = 0; u < grid.length; u++) {
+            for (int v = 0; v < grid[u].length; v++) {
+                if (grid[u][v] != null && grid[u][v].getClipNumber() == c.getClipNumber()) {
                     return ((u * grid.length) + v) + START_PAD_MIDI;
+                }
+            }
+        }
 
         return -1;
     }

@@ -17,6 +17,14 @@ import java.util.Objects;
  * Created by cansik on 18/08/16.
  */
 public class Clip extends Movie {
+
+    static volatile int clipNumberCounter = 0;
+
+    public static synchronized int generateClipNumber()
+    {
+        return clipNumberCounter++;
+    }
+
     PImage previewImage;
 
     // settings
@@ -30,8 +38,13 @@ public class Clip extends Movie {
 
     HashSet<ClipStateListener> stateListener = new HashSet<>();
 
+    int clipNumber;
+
     public Clip(PApplet pApplet, String s) {
         super(pApplet, s);
+
+        // set unique clip number
+        clipNumber = generateClipNumber();
 
         // initialize models
         playMode = new DataModel<>(new LoopMode());
@@ -89,6 +102,10 @@ public class Clip extends Movie {
 
     public DataModel<BlendMode> getBlendMode() {
         return blendMode;
+    }
+
+    public int getClipNumber() {
+        return this.clipNumber;
     }
 
     public void generatePreviewImage()

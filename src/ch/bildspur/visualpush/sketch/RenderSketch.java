@@ -22,8 +22,8 @@ public class RenderSketch extends PApplet {
 
     final static int PUSH_DISPLAY_REFRESH_STEP = 1;
 
-    final static int OUTPUT_WIDTH = 1280;
-    final static int OUTPUT_HEIGHT = 720;
+    final static int OUTPUT_WIDTH = 640;
+    final static int OUTPUT_HEIGHT = 480;
 
     final static int FRAME_RATE = 30;
 
