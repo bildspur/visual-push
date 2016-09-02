@@ -126,8 +126,6 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
     {
         launchScene = new Scene();
 
-        //launchScene.addControl(new GridControl(20, 20));
-
         // init clip preview
         clipViewer = new ClipViewerControl[ClipController.GRID_SIZE];
         for(int i = 0; i < clipViewer.length; i++)
@@ -227,7 +225,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         speedControl = new FaderControl(new DataModel<>(0f), 0, 75, 0, 4);
         speedControl.setPosition(new PVector(485, CONTROL_HEIGHT));
         speedControl.setStepValue(0.1f);
-        speedControl.setMinimumValue(-5f);
+        speedControl.setMinimumValue(0f);
         speedControl.setMaximumValue(5f);
         midiListener.add(speedControl);
 

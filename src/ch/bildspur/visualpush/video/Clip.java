@@ -18,6 +18,7 @@ import java.util.Objects;
  */
 public class Clip extends Movie {
 
+    final static int SPEED_UPDATE_TIME = 20;
     static volatile int clipNumberCounter = 0;
 
     public static synchronized int generateClipNumber()
@@ -56,7 +57,8 @@ public class Clip extends Movie {
         endTime = new DataModel<>(duration());
 
         speed.addListener(value -> {
-            this.speed(value);
+            if(pApplet.frameCount % SPEED_UPDATE_TIME == 0)
+                this.speed(value);
         });
 
         generatePreviewImage();
