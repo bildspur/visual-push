@@ -11,7 +11,6 @@ import processing.core.PImage;
 import processing.video.Movie;
 
 import java.util.HashSet;
-import java.util.Objects;
 
 /**
  * Created by cansik on 18/08/16.
@@ -36,6 +35,9 @@ public class Clip extends Movie {
     DataModel<PlayMode> playMode;
     DataModel<Float> zoom;
     DataModel<BlendMode> blendMode;
+    DataModel<Float> redTint;
+    DataModel<Float> blueTint;
+    DataModel<Float> greenTint;
 
     HashSet<ClipStateListener> stateListener = new HashSet<>();
 
@@ -55,6 +57,9 @@ public class Clip extends Movie {
         zoom = new DataModel<>(1f);
         blendMode = new DataModel<>(BlendMode.BLEND);
         endTime = new DataModel<>(duration());
+        redTint = new DataModel<>(255f);
+        blueTint = new DataModel<>(255f);
+        greenTint = new DataModel<>(255f);
 
         speed.addListener(value -> {
             if(pApplet.frameCount % SPEED_UPDATE_TIME == 0)
@@ -106,6 +111,18 @@ public class Clip extends Movie {
         return blendMode;
     }
 
+    public DataModel<Float> getRedTint() {
+        return redTint;
+    }
+
+    public DataModel<Float> getBlueTint() {
+        return blueTint;
+    }
+
+    public DataModel<Float> getGreenTint() {
+        return greenTint;
+    }
+
     public int getClipNumber() {
         return this.clipNumber;
     }
@@ -136,7 +153,7 @@ public class Clip extends Movie {
     public void paint(PGraphics g)
     {
         // set opacity
-        g.tint(255, opacity.getValue());
+        g.tint(redTint.getValue(), greenTint.getValue(), blueTint.getValue(), opacity.getValue());
 
         // set blend mode
         g.blendMode(blendMode.getValue().getIntValue());

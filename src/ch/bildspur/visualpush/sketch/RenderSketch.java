@@ -18,7 +18,7 @@ import javax.sound.midi.MidiMessage;
  */
 public class RenderSketch extends PApplet {
 
-    final static String CONFIG = "cuttingedge.json";
+    final static String CONFIG = "djrush.json";
 
     final static int PUSH_DISPLAY_REFRESH_STEP = 1;
 

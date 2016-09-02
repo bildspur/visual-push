@@ -10,6 +10,7 @@ public class OneShotMode implements PlayMode {
     @Override
     public void onTriggered(Clip clip, ClipController clipController) {
         clip.stop();
+        clip.noLoop();
         clip.play();
         clipController.activateClip(clip);
     }

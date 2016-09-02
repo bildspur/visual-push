@@ -80,6 +80,10 @@ public class ConfigurationController extends PushController {
         c.getZoom().setValue(json.getFloat("zoom"));
         c.getBlendMode().setValue(BlendMode.fromInteger(json.getInt("blendMode")));
 
+        c.getRedTint().setValue(json.getFloat("redTint"));
+        c.getGreenTint().setValue(json.getFloat("greenTint"));
+        c.getBlueTint().setValue(json.getFloat("blueTint"));
+
         return c;
     }
 
@@ -98,6 +102,9 @@ public class ConfigurationController extends PushController {
         json.setFloat("speed", clip.getSpeed().getValue());
         json.setFloat("zoom", clip.getZoom().getValue());
         json.setInt("blendMode", clip.getBlendMode().getValue().getIntValue());
+        json.setFloat("redTint", clip.getRedTint().getValue());
+        json.setFloat("greenTint", clip.getGreenTint().getValue());
+        json.setFloat("blueTint", clip.getBlueTint().getValue());
 
         return json;
     }

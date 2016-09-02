@@ -69,6 +69,9 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
     FaderControl opacitiyControl;
     FaderControl zoomControl;
     FaderControl speedControl;
+    FaderControl redTintControl;
+    FaderControl greenTintControl;
+    FaderControl blueTintControl;
 
     List<MidiEventListener> midiListener = new ArrayList<>();
 
@@ -169,6 +172,10 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
             opacitiyControl.setModel(clip.getOpacity());
             zoomControl.setModel(clip.getZoom());
             speedControl.setModel(clip.getSpeed());
+
+            redTintControl.setModel(clip.getRedTint());
+            greenTintControl.setModel(clip.getGreenTint());
+            blueTintControl.setModel(clip.getBlueTint());
         }
     }
 
@@ -233,11 +240,30 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         speedControl.setFillColor(Color.decode("#269AE0"));
         midiListener.add(speedControl);
 
-        // add opacity fader
+        // tint controls
+        redTintControl = new FaderControl(new DataModel<>(0f), 0, 76, 0, 5);
+        redTintControl.setPosition(new PVector(605, CONTROL_HEIGHT));
+        redTintControl.setFillColor(Color.RED);
+        midiListener.add(redTintControl);
+
+        greenTintControl = new FaderControl(new DataModel<>(0f), 0, 77, 0, 6);
+        greenTintControl.setPosition(new PVector(725, CONTROL_HEIGHT));
+        greenTintControl.setFillColor(Color.GREEN);
+        midiListener.add(greenTintControl);
+
+        blueTintControl = new FaderControl(new DataModel<>(0f), 0, 78, 0, 7);
+        blueTintControl.setPosition(new PVector(845, CONTROL_HEIGHT));
+        blueTintControl.setFillColor(Color.BLUE);
+        midiListener.add(blueTintControl);
+
+
+        // add global opacity fader
+        /*
         FaderControl globalOpacity = new FaderControl(sketch.getGlobalOpacity(), 0, 78, 0, 7);
         globalOpacity.setPosition(new PVector(845, CONTROL_HEIGHT));
         globalOpacity.setFillColor(Color.decode("#23D5A7"));
         midiListener.add(globalOpacity);
+        */
 
         // add labels
         ArrayList<LabelControl> labels = new ArrayList<LabelControl>(){{
@@ -246,6 +272,9 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
             add(new LabelControl(new DataModel<>("OPACITY")));
             add(new LabelControl(new DataModel<>("ZOOM")));
             add(new LabelControl(new DataModel<>("SPEED")));
+            add(new LabelControl(new DataModel<>("RED")));
+            add(new LabelControl(new DataModel<>("GREEN")));
+            add(new LabelControl(new DataModel<>("BLUE")));
         }};
 
         for(int i = 0; i < labels.size(); i++)
@@ -262,7 +291,9 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         launchScene.addControl(opacitiyControl);
         launchScene.addControl(zoomControl);
         launchScene.addControl(speedControl);
-        launchScene.addControl(globalOpacity);
+        launchScene.addControl(redTintControl);
+        launchScene.addControl(greenTintControl);
+        launchScene.addControl(blueTintControl);
     }
 
     void initMidi()
