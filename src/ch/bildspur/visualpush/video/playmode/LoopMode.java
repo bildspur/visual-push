@@ -10,8 +10,8 @@ public class LoopMode implements PlayMode {
     @Override
     public void onTriggered(Clip clip, ClipController clipController) {
         if(clip.isPlaying()) {
-            clip.stop();
             clipController.deactivateClip(clip);
+            clip.stop();
         }
         else {
             clip.loop();

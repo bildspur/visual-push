@@ -147,7 +147,6 @@ public class Clip extends Movie {
     public void play()
      {
          super.play();
-         jump(startTime.getValue());
      }
 
     @Override
