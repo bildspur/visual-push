@@ -63,6 +63,8 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
     // controls
     ClipViewerControl[] clipViewer;
 
+    LabelControl[] clipNameLabels;
+
     FaderListControl playModeList;
     FaderListControl blendModeList;
 
@@ -138,6 +140,17 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
             clipViewer[i] = new ClipViewerControl(5 + (120 * i), 79, 105, 80);
             launchScene.addControl(clipViewer[i]);
         }
+
+        // init clip names
+        clipNameLabels = new LabelControl[ClipController.GRID_SIZE];
+        for(int i = 0; i < clipNameLabels.length; i++)
+        {
+            clipNameLabels[i] = new LabelControl(new DataModel<>(""));
+            clipNameLabels[i].setPosition(new PVector(5 + (120 * i), 60));
+            clipNameLabels[i].setTextSize(10);
+            launchScene.addControl(clipNameLabels[i]);
+        }
+
         updateClipViewer();
 
         createClipControls();
@@ -158,6 +171,16 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         for(int i = 0; i < clipViewer.length; i++)
         {
             clipViewer[i].setClip(grid[activeRow][i]);
+        }
+
+        for(int i = 0; i < clipViewer.length; i++)
+        {
+            Clip clip = grid[activeRow][i];
+
+            if(clip != null)
+                clipNameLabels[i].setModel(clip.getClipName());
+            else
+                clipNameLabels[i].setModel(new DataModel<>(""));
         }
     }
 

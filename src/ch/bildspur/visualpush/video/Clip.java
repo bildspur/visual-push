@@ -10,6 +10,8 @@ import processing.core.PGraphics;
 import processing.core.PImage;
 import processing.video.Movie;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashSet;
 
 /**
@@ -38,6 +40,7 @@ public class Clip extends Movie {
     DataModel<Float> redTint;
     DataModel<Float> blueTint;
     DataModel<Float> greenTint;
+    DataModel<String> clipName;
 
     HashSet<ClipStateListener> stateListener = new HashSet<>();
 
@@ -60,6 +63,11 @@ public class Clip extends Movie {
         redTint = new DataModel<>(255f);
         blueTint = new DataModel<>(255f);
         greenTint = new DataModel<>(255f);
+
+        // get clip name
+        Path p = Paths.get(s);
+        String file = p.getFileName().toString().replace(".mov", "").replace("_", " ").trim();
+        clipName = new DataModel<>(file);
 
         speed.addListener(value -> {
             if(pApplet.frameCount % SPEED_UPDATE_TIME == 0)
@@ -121,6 +129,10 @@ public class Clip extends Movie {
 
     public DataModel<Float> getGreenTint() {
         return greenTint;
+    }
+
+    public DataModel<String> getClipName() {
+        return clipName;
     }
 
     public int getClipNumber() {
