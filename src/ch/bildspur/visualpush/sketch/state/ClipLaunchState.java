@@ -138,6 +138,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         for(int i = 0; i < clipViewer.length; i++)
         {
             clipViewer[i] = new ClipViewerControl(5 + (120 * i), 79, 105, 80);
+            clipViewer[i].setFillColor(Color.CYAN);
             launchScene.addControl(clipViewer[i]);
         }
 
@@ -171,6 +172,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         for(int i = 0; i < clipViewer.length; i++)
         {
             clipViewer[i].setClip(grid[activeRow][i]);
+            clipViewer[i].setHighlighted(i == activeColumn);
         }
 
         for(int i = 0; i < clipViewer.length; i++)
@@ -523,6 +525,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         activeColumn = newNumber;
         midiController.sendControllerChange(1, activeColumn + START_COLUMN_MIDI, COLUMN_ROW_SELECTOR_COLOR);
 
+        updateClipViewer();
         updateClipControls();
     }
 

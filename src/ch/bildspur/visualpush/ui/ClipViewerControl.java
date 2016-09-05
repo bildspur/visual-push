@@ -12,6 +12,10 @@ import java.awt.*;
 public class ClipViewerControl extends UIControl {
     Clip clip;
     int padding = 1;
+    float borderWeightHighlighted = 1.5f;
+    float borderWeightNormal = 1f;
+
+    boolean highlighted = false;
 
     public ClipViewerControl(Clip clip)
     {
@@ -33,6 +37,14 @@ public class ClipViewerControl extends UIControl {
         this.strokeColor = Color.GRAY;
     }
 
+    public boolean isHighlighted() {
+        return highlighted;
+    }
+
+    public void setHighlighted(boolean highlighted) {
+        this.highlighted = highlighted;
+    }
+
     public Clip getClip() {
         return clip;
     }
@@ -45,9 +57,13 @@ public class ClipViewerControl extends UIControl {
     {
         PVector pos = getAbsolutePosition();
 
-        //g.fill(fillColor.getRGB());
         g.noFill();
+        g.strokeWeight(highlighted ? borderWeightHighlighted : borderWeightNormal);
         g.stroke(strokeColor.getRGB());
+
+        if(highlighted)
+            g.stroke(fillColor.getRGB());
+
         g.rect(pos.x, pos.y, width, height);
 
         if(clip != null)
