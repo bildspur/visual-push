@@ -1,5 +1,7 @@
 package ch.bildspur.visualpush.sketch.state;
 
+import ch.bildspur.visualpush.push.color.RGBColor;
+import ch.bildspur.visualpush.sketch.controller.ConfigurationController;
 import ch.bildspur.visualpush.util.ContentUtil;
 import ch.bildspur.visualpush.util.ImageUtil;
 import processing.core.PApplet;
@@ -17,13 +19,22 @@ public class SplashScreenState extends PushState {
     int duration;
     float startFrame = 0;
 
+    volatile boolean configurationLoaded = false;
+
+    public SplashScreenState(ConfigurationController configurationController)
+    {
+        configurationController.addConfigLoadedListener(cc -> {
+            configurationLoaded = true;
+        });
+    }
+
     public void setup(PApplet sketch, PGraphics screen)
     {
         super.setup(sketch, screen);
 
         String splashPath = ContentUtil.getContent("splash_screen_short.mov");
         bildspurLogo = new Movie(sketch, splashPath);
-        bildspurLogo.play();
+        bildspurLogo.loop();
 
         duration = (int)(bildspurLogo.duration() * 45);
 
@@ -34,7 +45,7 @@ public class SplashScreenState extends PushState {
     {
         this.sketch.getMidi().sendNoteOff(0, lightingLED + LED_START, 0);
         lightingLED = (int)(PApplet.map(sketch.frameCount, startFrame, duration, 0, 63));
-        this.sketch.getMidi().sendNoteOn(0, lightingLED + LED_START, 126);
+        this.sketch.getMidi().sendNoteOn(0, lightingLED + LED_START, RGBColor.WHITE().getColor());
 
         sketch.getOutputScreen().beginDraw();
         ImageUtil.centerImageAdjusted(sketch.getOutputScreen(), bildspurLogo);
@@ -44,9 +55,8 @@ public class SplashScreenState extends PushState {
         ImageUtil.centerImageAdjusted(screen, bildspurLogo);
         screen.endDraw();
 
-        if(bildspurLogo.time() >= bildspurLogo.duration()) {
+        if(configurationLoaded)
             running = false;
-        }
     }
 
     @Override

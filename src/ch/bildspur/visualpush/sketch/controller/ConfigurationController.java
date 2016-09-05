@@ -1,5 +1,6 @@
 package ch.bildspur.visualpush.sketch.controller;
 
+import ch.bildspur.visualpush.event.ConfigLoadedHandler;
 import ch.bildspur.visualpush.sketch.RenderSketch;
 import ch.bildspur.visualpush.video.BlendMode;
 import ch.bildspur.visualpush.video.Clip;
@@ -8,6 +9,10 @@ import processing.core.PApplet;
 import processing.data.JSONArray;
 import processing.data.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Observer;
+
 /**
  * Created by cansik on 30/08/16.
  */
@@ -15,6 +20,13 @@ public class ConfigurationController extends PushController {
     final String CONFIG_DIR = "config/";
 
     protected RenderSketch sketch;
+
+    List<ConfigLoadedHandler> configLoadedListener = new ArrayList<>();
+
+    public void addConfigLoadedListener(ConfigLoadedHandler observer)
+    {
+        configLoadedListener.add(observer);
+    }
 
     public void setup(PApplet sketch) {
         super.setup(sketch);
@@ -39,12 +51,14 @@ public class ConfigurationController extends PushController {
         }
 
         System.out.println(clips.size() + " clips loaded!");
+        notifyListener();
     }
 
     public Thread loadAsync(String fileName)
     {
         Thread t = new Thread(() -> {
             load(fileName);
+            notifyListener();
         });
         t.start();
         return t;
@@ -66,6 +80,12 @@ public class ConfigurationController extends PushController {
 
         // write file
         sketch.saveJSONObject(root, CONFIG_DIR + fileName);
+    }
+
+    private void notifyListener()
+    {
+        for(int i = configLoadedListener.size() - 1; i >= 0; i--)
+            configLoadedListener.get(i).configLoaded(this);
     }
 
     private Clip loadClip(JSONObject json)

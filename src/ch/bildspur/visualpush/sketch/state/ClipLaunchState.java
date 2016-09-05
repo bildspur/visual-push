@@ -326,10 +326,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         {
             @Override
             public void controlChange(int channel, int number, int value) {
-                if(value == 127)
-                    previewMode = true;
-                else
-                    previewMode = false;
+                previewMode = value == 127;
             }
         });
 

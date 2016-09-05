@@ -38,7 +38,7 @@ public class RenderSketch extends PApplet {
     PGraphics uiScreen;
     PGraphics outputScreen;
 
-    PushState activeState = new SplashScreenState();
+    PushState activeState;
 
     DataModel<Float> globalOpacity = new DataModel<>(255f);
 
@@ -72,6 +72,7 @@ public class RenderSketch extends PApplet {
         design.setup(this, uiScreen);
 
         // first state setup
+        activeState = new SplashScreenState(config);
         activeState.setup(this, uiScreen);
 
         // load config async
