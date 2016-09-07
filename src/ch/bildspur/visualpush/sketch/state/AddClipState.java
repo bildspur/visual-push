@@ -4,6 +4,7 @@ import ch.bildspur.visualpush.data.DataModel;
 import ch.bildspur.visualpush.event.ControlChangeHandler;
 import ch.bildspur.visualpush.event.midi.MidiEventListener;
 import ch.bildspur.visualpush.push.color.RGBColor;
+import ch.bildspur.visualpush.sketch.RenderSketch;
 import ch.bildspur.visualpush.sketch.controller.ClipController;
 import ch.bildspur.visualpush.ui.FaderListControl;
 import ch.bildspur.visualpush.ui.ListElement;
@@ -125,7 +126,7 @@ public class AddClipState extends PushState {
 
 
         // load clips from folder
-        for(Path path : fileList(ContentUtil.getContent("visuals/")))
+        for(Path path : fileList(((RenderSketch)sketch).getConfig().getVisualPath()))
         {
             clipFiles.add(new ListElement(path, path.getFileName().toString()));
         }

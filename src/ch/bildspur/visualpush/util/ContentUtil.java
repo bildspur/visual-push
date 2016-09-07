@@ -8,11 +8,6 @@ import java.net.URISyntaxException;
 public class ContentUtil {
     public static String getContent(String name)
     {
-        try {
-            return ContentUtil.class.getResource("/content/" + name).toURI().getPath();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return "content/" + name;
     }
 }

@@ -4,3 +4,4 @@ out
 hs_err_pid*.log
 src/content/visuals
 config
+visuals

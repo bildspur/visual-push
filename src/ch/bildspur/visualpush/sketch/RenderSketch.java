@@ -18,7 +18,7 @@ import javax.sound.midi.MidiMessage;
  */
 public class RenderSketch extends PApplet {
 
-    final static String CONFIG = "djrush.json";
+    final static String CONFIG = "guenther.json";
 
     final static int PUSH_DISPLAY_REFRESH_STEP = 1;
 
@@ -206,6 +206,10 @@ public class RenderSketch extends PApplet {
 
     public PGraphics getOutputScreen() {
         return outputScreen;
+    }
+
+    public ConfigurationController getConfig() {
+        return config;
     }
 
     public DataModel<Float> getGlobalOpacity() {

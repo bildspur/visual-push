@@ -21,11 +21,18 @@ public class ConfigurationController extends PushController {
 
     protected RenderSketch sketch;
 
+    String visualPath = "";
+
     List<ConfigLoadedHandler> configLoadedListener = new ArrayList<>();
 
     public void addConfigLoadedListener(ConfigLoadedHandler observer)
     {
         configLoadedListener.add(observer);
+    }
+
+    public String getVisualPath()
+    {
+        return visualPath;
     }
 
     public void setup(PApplet sketch) {
@@ -36,6 +43,7 @@ public class ConfigurationController extends PushController {
     public void load(String fileName)
     {
         JSONObject root = sketch.loadJSONObject(CONFIG_DIR + fileName);
+        visualPath = root.getString("visualPath");
         JSONArray clips = root.getJSONArray("clips");
 
         // load clips from config
