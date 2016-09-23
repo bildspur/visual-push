@@ -22,6 +22,7 @@ import processing.core.PGraphics;
 import processing.core.PVector;
 
 import java.awt.Color;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,6 +78,8 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
 
     List<MidiEventListener> midiListener = new ArrayList<>();
 
+    AddClipState addClipState;
+
     boolean isInitialised = false;
 
     PushState nextState = new NullState();
@@ -96,6 +99,8 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         if(!isInitialised) {
             initMidi();
             initScene();
+
+            addClipState = new AddClipState(ClipLaunchState.this, 0);
 
             isInitialised = true;
             running = true;
@@ -561,7 +566,10 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
     public void update()
     {
         if(showAddClip)
-            showDialogState(new AddClipState(ClipLaunchState.this, START_PAD_MIDI + (activeRow * grid.length) + activeColumn));
+        {
+            addClipState.setPadNumber(START_PAD_MIDI + (activeRow * grid.length) + activeColumn);
+            showDialogState(addClipState);
+        }
     }
 
     @Override
