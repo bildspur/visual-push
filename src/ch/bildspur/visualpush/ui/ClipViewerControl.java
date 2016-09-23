@@ -1,6 +1,7 @@
 package ch.bildspur.visualpush.ui;
 
 import ch.bildspur.visualpush.video.Clip;
+import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PVector;
 
@@ -14,6 +15,9 @@ public class ClipViewerControl extends UIControl {
     int padding = 1;
     float borderWeightHighlighted = 1.5f;
     float borderWeightNormal = 1f;
+
+    float positionWidth = 2f;
+    float positionAlpha = 200;
 
     boolean highlighted = false;
 
@@ -66,8 +70,16 @@ public class ClipViewerControl extends UIControl {
 
         g.rect(pos.x, pos.y, width, height);
 
-        if(clip != null)
+        if(clip != null) {
             g.image(clip.getPreview(), pos.x + padding, pos.y + padding, width - padding, height - padding);
+
+            // draw current position
+            g.fill(fillColor.getRGB(), positionAlpha);
+            g.noStroke();
+
+            if(clip.duration() > 0)
+                g.rect(pos.x, pos.y + height - positionWidth, PApplet.map(clip.time(), 0f, clip.duration(), 0f, width), positionWidth);
+        }
 
         super.paint(g);
     }
