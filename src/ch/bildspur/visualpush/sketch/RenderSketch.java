@@ -1,6 +1,7 @@
 package ch.bildspur.visualpush.sketch;
 
 import ch.bildspur.visualpush.data.DataModel;
+import ch.bildspur.visualpush.push.Project;
 import ch.bildspur.visualpush.sketch.controller.*;
 import ch.bildspur.visualpush.sketch.state.ClipLaunchState;
 import ch.bildspur.visualpush.sketch.state.PushState;
@@ -12,14 +13,14 @@ import processing.opengl.PJOGL;
 import processing.video.Movie;
 
 import javax.sound.midi.MidiMessage;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * Created by cansik on 16/08/16.
  */
 public class RenderSketch extends PApplet {
-
-    final static String CONFIG = "guenther.json";
-
     final static int PUSH_DISPLAY_REFRESH_STEP = 1;
 
     final static int OUTPUT_WIDTH = 640;
@@ -52,6 +53,7 @@ public class RenderSketch extends PApplet {
     public void setup()
     {
         frameRate(FRAME_RATE);
+        surface.setTitle("Visual Push");
 
         // create output screen
         outputScreen = createGraphics(OUTPUT_WIDTH, OUTPUT_HEIGHT, P2D);
@@ -75,8 +77,18 @@ public class RenderSketch extends PApplet {
         activeState = new SplashScreenState(config);
         activeState.setup(this, uiScreen);
 
-        // load config async
-        config.loadAsync(CONFIG);
+        // load global config
+        config.loadGlobalConfig();
+
+        if(config.getProject().exists()) {
+            // load config async
+            println("loading config " + config.getProject().getConfigFile().getFileName().toString());
+            config.loadAsync(config.getProject().getConfigFile().toString());
+        }
+        else
+        {
+            config.notifyListener();
+        }
 
         // start push screen
         push.open();
@@ -166,10 +178,52 @@ public class RenderSketch extends PApplet {
                 activeState = new ClipLaunchState();
                 activeState.setup(this, uiScreen);
                 break;
-            case 's':
-                System.out.println("config saved!");
-                config.save(CONFIG);
+            case 'n':
+                config.setProject(new Project(""));
+                resetClips();
                 break;
+            case 'l':
+                selectInput("Select a config file:", "loadConfig");
+                break;
+            case 's':
+                if (config.getProject().exists()) {
+                    saveConfig(new File(config.getProject().getConfigFile().toString()));
+                }
+                else
+                {
+                    selectOutput("Select a file to write the config to:", "saveConfig");
+                }
+                break;
+        }
+    }
+
+    public void resetClips()
+    {
+        // deactivate all running clips
+        for(Clip c : clips.getActiveClips())
+            if(c != null)
+                clips.deactivateClip(c);
+
+        clips.initClipGrid();
+    }
+
+    public void saveConfig(File selection) {
+        if (selection == null) {
+            println("Window was closed or the user hit cancel.");
+        } else {
+            config.save(selection.toString());
+            System.out.println("config saved!");
+        }
+    }
+
+    public void loadConfig(File selection)
+    {
+        if (selection == null) {
+            println("Window was closed or the user hit cancel.");
+        } else {
+            resetClips();
+            activeState = new SplashScreenState(config);
+            config.loadAsync(selection.toString());
         }
     }
 

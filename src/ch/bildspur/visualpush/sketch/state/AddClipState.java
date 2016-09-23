@@ -126,7 +126,7 @@ public class AddClipState extends PushState {
 
 
         // load clips from folder
-        for(Path path : fileList(((RenderSketch)sketch).getConfig().getVisualPath()))
+        for(Path path : fileList(((RenderSketch)sketch).getConfig().getProject().getVisualPath().toString()))
         {
             clipFiles.add(new ListElement(path, path.getFileName().toString()));
         }

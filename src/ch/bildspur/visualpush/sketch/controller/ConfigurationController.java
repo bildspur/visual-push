@@ -1,6 +1,7 @@
 package ch.bildspur.visualpush.sketch.controller;
 
 import ch.bildspur.visualpush.event.ConfigLoadedHandler;
+import ch.bildspur.visualpush.push.Project;
 import ch.bildspur.visualpush.sketch.RenderSketch;
 import ch.bildspur.visualpush.video.BlendMode;
 import ch.bildspur.visualpush.video.Clip;
@@ -9,19 +10,21 @@ import processing.core.PApplet;
 import processing.data.JSONArray;
 import processing.data.JSONObject;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observer;
 
 /**
  * Created by cansik on 30/08/16.
  */
 public class ConfigurationController extends PushController {
-    final String CONFIG_DIR = "config/";
+    public static final String CONFIG_DIR = "config/";
+    public static final String DEFAULT_VISUAL_DIR = "visuals/";
+    public static final String GLOBAL_CONFIG = "global.json";
 
     protected RenderSketch sketch;
-
-    String visualPath = "";
+    Project project;
 
     List<ConfigLoadedHandler> configLoadedListener = new ArrayList<>();
 
@@ -30,9 +33,12 @@ public class ConfigurationController extends PushController {
         configLoadedListener.add(observer);
     }
 
-    public String getVisualPath()
-    {
-        return visualPath;
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
     }
 
     public void setup(PApplet sketch) {
@@ -40,10 +46,24 @@ public class ConfigurationController extends PushController {
         this.sketch = (RenderSketch)sketch;
     }
 
+    public void loadGlobalConfig()
+    {
+        JSONObject root = sketch.loadJSONObject(CONFIG_DIR + GLOBAL_CONFIG);
+        project = new Project(root.getString("projectFile"));
+    }
+
+    public void saveGlobalConfig()
+    {
+        JSONObject root = new JSONObject();
+        root.setString("projectFile", getRelative(project.getConfigFile()).toString());
+
+        sketch.saveJSONObject(root, CONFIG_DIR + GLOBAL_CONFIG);
+    }
+
     public void load(String fileName)
     {
-        JSONObject root = sketch.loadJSONObject(CONFIG_DIR + fileName);
-        visualPath = root.getString("visualPath");
+        JSONObject root = sketch.loadJSONObject(fileName);
+        project.setVisualPath(Paths.get(root.getString("visualPath")));
         JSONArray clips = root.getJSONArray("clips");
 
         // load clips from config
@@ -57,6 +77,9 @@ public class ConfigurationController extends PushController {
 
             grid[row][column] = loadClip(clipJSON);
         }
+
+        // save global config to save last projectFile
+        saveGlobalConfig();
 
         System.out.println(clips.size() + " clips loaded!");
         notifyListener();
@@ -84,13 +107,18 @@ public class ConfigurationController extends PushController {
             for(int v = 0; v < grid[u].length; v++)
                 if(grid[u][v] != null)
                     clips.append(getClipJSON(grid[u][v], u, v));
+
         root.setJSONArray("clips", clips);
+        root.setString("visualPath", getRelative(project.getVisualPath()).toString());
 
         // write file
-        sketch.saveJSONObject(root, CONFIG_DIR + fileName);
+        sketch.saveJSONObject(root, fileName);
+        project.setConfigFile(Paths.get(fileName));
+
+        saveGlobalConfig();
     }
 
-    private void notifyListener()
+    public void notifyListener()
     {
         for(int i = configLoadedListener.size() - 1; i >= 0; i--)
             configLoadedListener.get(i).configLoaded(this);
@@ -122,7 +150,7 @@ public class ConfigurationController extends PushController {
         json.setInt("row", row);
         json.setInt("column", column);
 
-        json.setString("path", clip.filename);
+        json.setString("path", getRelative(clip.filename).toString());
         json.setInt("playMode", clip.getPlayMode().getValue().getIntValue());
         json.setFloat("opacity", clip.getOpacity().getValue());
         json.setFloat("startTime", clip.getStartTime().getValue());
@@ -135,5 +163,15 @@ public class ConfigurationController extends PushController {
         json.setFloat("blueTint", clip.getBlueTint().getValue());
 
         return json;
+    }
+
+    Path getRelative(String path)
+    {
+        return getRelative(Paths.get(path));
+    }
+
+    Path getRelative(Path path)
+    {
+        return Paths.get(sketch.sketchPath()).relativize(path.toAbsolutePath());
     }
 }

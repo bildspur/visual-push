@@ -36,10 +36,9 @@ public class ClipController extends ProcessingController {
         return clipGrid;
     }
 
-    public void initClipGrid()
-    {
+    public void initClipGrid() {
         clipGrid = new Clip[GRID_SIZE][];
-        for(int i = 0; i < clipGrid.length; i++)
+        for (int i = 0; i < clipGrid.length; i++)
             clipGrid[i] = new Clip[GRID_SIZE];
     }
 
