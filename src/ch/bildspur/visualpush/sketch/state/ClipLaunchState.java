@@ -96,13 +96,14 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         if(!isInitialised) {
             initMidi();
             initScene();
-            initListener();
 
             isInitialised = true;
             running = true;
         }
-        else
+        else {
+            initListener();
             updatePadColors();
+        }
 
         // set initial values
         switchColumn(activeColumn);
