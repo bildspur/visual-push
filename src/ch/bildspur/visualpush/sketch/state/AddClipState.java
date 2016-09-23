@@ -111,6 +111,7 @@ public class AddClipState extends PushState {
         midiListener.add(addButton.getHandler());
 
         addAllButton = new ButtonControl("ADD ALL", 4, false, this.sketch.getMidi(), (s -> {
+            PApplet.println("add all clicked");
             addAllClips();
         }));
         addClipScene.addControl(addAllButton);
@@ -204,18 +205,19 @@ public class AddClipState extends PushState {
             Path path = (Path) element.getValue();
             File file = new File(path.toString());
 
-            if(file.isDirectory())
-                continue;
+            if(file.isFile()) {
+                PApplet.println("adding clip (" + addCounter + ") " + path.getFileName().toString() + "...");
 
-            // add file to pad position
-            clipSelector.getModel().setValue(addCounter);
-            addSelectedClip(false);
+                // add file to pad position
+                clipSelector.getModel().setValue(addCounter);
+                addSelectedClip(false);
 
-            padNumber++;
-            if((padNumber - START_PAD_MIDI) % 8 == 0)
-                padNumber -= 16;
+                padNumber++;
+                if ((padNumber - START_PAD_MIDI) % 8 == 0)
+                    padNumber -= 16;
 
-            addCounter++;
+                addCounter++;
+            }
         }
 
         returnToParentState = true;
