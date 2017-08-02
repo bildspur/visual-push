@@ -10,8 +10,13 @@ import java.nio.file.Paths;
 public class ContentUtil {
     public static String getContent(String name)
     {
+        return "content/" + name;
+    }
+
+    public static String getGStreamerContent(String name)
+    {
         Path currentRelativePath = Paths.get("");
-        String absolutePath = currentRelativePath.toAbsolutePath().toString();
-        return absolutePath + "/content/" + name;
+        String absolutPath = currentRelativePath.toAbsolutePath().toString();
+        return "file://" + absolutPath + "/content/" + name;
     }
 }
