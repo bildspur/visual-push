@@ -10,12 +10,9 @@ import ch.bildspur.visualpush.video.Clip;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.opengl.PJOGL;
-import processing.video.Movie;
 
 import javax.sound.midi.MidiMessage;
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 /**
  * Created by cansik on 16/08/16.
@@ -160,12 +157,6 @@ public class RenderSketch extends PApplet {
     public void stop()
     {
         push.close();
-    }
-
-    // Video methods
-    public void movieEvent(Movie m) {
-        if(m.available())
-            m.read();
     }
 
     public void keyPressed()
