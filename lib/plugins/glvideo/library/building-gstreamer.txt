@@ -1,0 +1,118 @@
+sudo aptitude install autoconf autopoint bison flex gettext libasound2-dev libglib2.0-dev libpulse-dev libtool
+
+export CPPFLAGS="-I/opt/vc/include -I/opt/vc/include/interface/vcos/pthreads -I/opt/vc/include/interface/vmcs_host/linux -I/opt/vc/include/IL"
+export LIBS="-L/opt/vc/lib"
+
+git clone --recursive git://anongit.freedesktop.org/gstreamer/orc
+cd orc
+./autogen.sh --prefix=/usr/local --disable-gtk-doc
+make -j3 -l3
+sudo make install
+make clean
+cd ..
+
+sudo mv /etc/ld.so.conf.d/libc.conf /etc/ld.so.conf.d/01-libc.conf
+sudo ldconfig
+
+git clone --recursive git://anongit.freedesktop.org/gstreamer/gstreamer
+cd gstreamer
+git checkout tags/1.12.0
+git submodule update
+./autogen.sh --prefix=/usr/local --disable-debug --disable-gtk-doc
+make -j3 -l3
+sudo make install
+make clean
+cd ..
+
+# depends on libglib-2.0.so
+
+git clone --recursive git://anongit.freedesktop.org/gstreamer/gst-plugins-base
+cd gst-plugins-base
+git checkout tags/1.12.0
+git submodule update
+./autogen.sh --prefix=/usr/local --disable-debug --disable-gtk-doc
+make -j3 -l3
+sudo make install
+make clean
+cd ..
+
+git clone --recursive git://anongit.freedesktop.org/gstreamer/gst-plugins-good
+cd gst-plugins-good
+git checkout tags/1.12.0
+git submodule update
+./autogen.sh --prefix=/usr/local --disable-debug --disable-gtk-doc --disable-libpng --disable-oss --disable-oss4
+make -j3 -l3
+sudo make install
+make clean
+cd ..
+
+git clone --recursive git://anongit.freedesktop.org/gstreamer/gst-plugins-bad
+cd gst-plugins-bad
+git checkout tags/1.12.0
+git submodule update
+./autogen.sh --prefix=/usr/local --disable-debug --disable-decklink --disable-dvb --disable-fbdev --disable-gtk-doc --disable-x11 --disable-opengl --disable-glx --enable-gles2 --disable-vcd --disable-wayland --with-gles2-module-name=/opt/vc/lib/libGLESv2.so --with-egl-module-name=/opt/vc/lib/libEGL.so
+make -j3 -l3
+sudo make install
+make clean
+cd ..
+
+# needs workaround: http://gstreamer-devel.966125.n4.nabble.com/Trouble-building-gstreamer-uninstalled-on-latest-raspbian-lite-td4681549.html
+git clone --recursive git://anongit.freedesktop.org/gstreamer/gst-omx
+cd gst-omx
+git checkout tags/1.12.0
+git submodule update
+./autogen.sh --prefix=/usr/local --disable-debug --disable-gtk-doc --with-omx-target=rpi
+make -j3 -l3
+sudo make install
+make clean
+cd ..
+
+# /opt/vc/include/IL/OMX_Core.h:45:4: warning: #warning OMX_SKIP64BIT is not defined - this will be incompatible with the VC GPU code. [-Wcpp]
+# #warning OMX_SKIP64BIT is not defined - this will be incompatible with the VC GPU code.
+
+git clone https://github.com/FFmpeg/gas-preprocessor.git
+cd gas-preprocessor
+chmod a+x gas-preprocessor.pl
+sudo cp gas-preprocessor.pl /usr/local/bin
+cd ..
+
+git clone --recursive git://anongit.freedesktop.org/gstreamer/gst-ffmpeg
+cd gst-ffmpeg
+git checkout tags/1.12.0
+git submodule update
+AS=gcc ./autogen.sh --prefix=/usr/local --disable-debug --disable-gtk-doc
+make -j3 -l3
+sudo make install
+make clean
+cd ..
+
+# External libraries:
+# zlib
+
+#git clone https://github.com/thaytan/gst-rpicamsrc.git
+#cd gst-rpicamsrc
+#./autogen.sh --prefix=/usr/local
+#make -j3 -l3
+#sudo make install
+#make clean
+#cd ..
+
+git clone --recursive https://github.com/NixOS/patchelf.git
+cd patchelf
+./bootstrap.sh
+./configure --prefix=/usr/local
+make -j3 -l3
+sudo make install
+make clean
+cd ..
+
+mkdir ~/linux-armv6hf
+cp -LR /usr/local/lib/gstreamer-1.0 ~/linux-armv6hf
+cp -LR /usr/local/lib/libgst* ~/linux-armv6hf
+cp -LR /usr/local/lib/liborc-0.4* ~/linux-armv6hf
+find ~/linux-armv6hf -name "*.la" -delete
+find ~/linux-armv6hf -maxdepth 1 -name "*.so" -delete
+find ~/linux-armv6hf -maxdepth 1 -name "*.so.0.*" -delete
+rm -Rf ~/linux-armv6hf/gstreamer-1.0/include
+find ~/linux-armv6hf -maxdepth 1 -type f -exec patchelf --force-rpath --set-rpath '$ORIGIN' {} \;
+find ~/linux-armv6hf/gstreamer-1.0 -type f -exec patchelf --force-rpath --set-rpath '$ORIGIN/..' {} \;

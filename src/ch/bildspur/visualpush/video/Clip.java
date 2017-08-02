@@ -5,6 +5,7 @@ import ch.bildspur.visualpush.util.ImageUtil;
 import ch.bildspur.visualpush.video.event.ClipStateListener;
 import ch.bildspur.visualpush.video.playmode.LoopMode;
 import ch.bildspur.visualpush.video.playmode.PlayMode;
+import gohai.glvideo.GLVideo;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PImage;
@@ -17,7 +18,7 @@ import java.util.HashSet;
 /**
  * Created by cansik on 18/08/16.
  */
-public class Clip extends Movie {
+public class Clip extends GLVideo {
 
     final static int SPEED_UPDATE_TIME = 20;
     static volatile int clipNumberCounter = 0;
@@ -41,6 +42,8 @@ public class Clip extends Movie {
     DataModel<Float> blueTint;
     DataModel<Float> greenTint;
     DataModel<String> clipName;
+    DataModel<Boolean> playing;
+    DataModel<Path> fileName;
 
     HashSet<ClipStateListener> stateListener = new HashSet<>();
 
@@ -53,6 +56,7 @@ public class Clip extends Movie {
         clipNumber = generateClipNumber();
 
         // initialize models
+        playing = new DataModel<>(false);
         playMode = new DataModel<>(new LoopMode());
         opacity = new DataModel<>(255f);
         startTime = new DataModel<>(0f);
@@ -66,7 +70,9 @@ public class Clip extends Movie {
 
         // get clip name
         Path p = Paths.get(s);
+        fileName = new DataModel<>(p);
         String file = p.getFileName().toString().replace(".mov", "").replace("_", " ").trim();
+
         clipName = new DataModel<>(file);
 
         speed.addListener(value -> {
@@ -78,7 +84,7 @@ public class Clip extends Movie {
     }
 
     public boolean isPlaying() {
-        return playing;
+        return playing.getValue();
     }
 
     public DataModel<PlayMode> getPlayMode() {
@@ -139,6 +145,10 @@ public class Clip extends Movie {
         return this.clipNumber;
     }
 
+    public DataModel<Path> getFileName() {
+        return fileName;
+    }
+
     public void generatePreviewImage()
     {
         // generate preview image
@@ -156,7 +166,7 @@ public class Clip extends Movie {
 
     public PImage getPreview()
     {
-        if(playing)
+        if(playing.getValue())
             return this;
         else
             return previewImage;
@@ -172,29 +182,33 @@ public class Clip extends Movie {
 
         // draw image
         ImageUtil.centerImage(g, this);
+
+        // on end set eos event
+        if(super.time() == 1.0)
+            eosEvent();
     }
 
     @Override
     public void play()
      {
          super.play();
+         playing.setValue(true);
      }
 
     @Override
     public void loop()
     {
         super.loop();
+        playing.setValue(true);
     }
 
-    @Override
     public void stop()
     {
-        super.stop();
+        super.pause();
+        playing.setValue(false);
     }
 
-    @Override
-    protected void eosEvent() {
-        super.eosEvent();
+    private void eosEvent() {
         notifiyListener();
     }
 }
