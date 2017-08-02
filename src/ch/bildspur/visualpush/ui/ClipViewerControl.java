@@ -75,7 +75,9 @@ public class ClipViewerControl extends UIControl {
                     clip.getGreenTint().getValue(),
                     clip.getBlueTint().getValue(),
                     clip.getOpacity().getValue());
-            g.image(clip.getPreview(), pos.x + padding, pos.y + padding, width - padding, height - padding);
+
+            if(clip.getPreview() != null)
+                g.image(clip.getPreview(), pos.x + padding, pos.y + padding, width - padding, height - padding);
 
             // draw current position
             g.fill(fillColor.getRGB(), positionAlpha);

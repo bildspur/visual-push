@@ -60,7 +60,7 @@ public class Clip extends GLMovie {
         speed = new DataModel<>(1f);
         zoom = new DataModel<>(1f);
         blendMode = new DataModel<>(BlendMode.BLEND);
-        endTime = new DataModel<>(duration());
+        endTime = new DataModel<>(0f); // todo: add duration() lazy
         redTint = new DataModel<>(255f);
         blueTint = new DataModel<>(255f);
         greenTint = new DataModel<>(255f);
@@ -77,7 +77,8 @@ public class Clip extends GLMovie {
                 this.speed(value);
         });
 
-        generatePreviewImage();
+        // todo: generate preview image lazy
+        //generatePreviewImage();
     }
 
     public boolean isPlaying() {
