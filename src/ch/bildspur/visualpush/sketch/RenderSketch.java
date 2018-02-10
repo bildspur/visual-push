@@ -21,12 +21,15 @@ import java.nio.file.Paths;
  * Created by cansik on 16/08/16.
  */
 public class RenderSketch extends PApplet {
-    final static int PUSH_DISPLAY_REFRESH_STEP = 1;
+    final static int PUSH_DISPLAY_REFRESH_STEP = 3;
 
-    final static int OUTPUT_WIDTH = 640;
-    final static int OUTPUT_HEIGHT = 480;
+    final static int OUTPUT_WIDTH = 960;
+    final static int OUTPUT_HEIGHT = 720;
 
-    final static int FRAME_RATE = 30;
+    final static int WINDOW_WIDTH = 640;
+    final static int WINDOW_HEIGHT = 480;
+
+    final static int FRAME_RATE = 60;
 
     SyphonController syphon = new SyphonController();
     MidiController midi = new MidiController();
@@ -46,7 +49,7 @@ public class RenderSketch extends PApplet {
     boolean showOutput = true;
 
     public void settings(){
-        size(OUTPUT_WIDTH, OUTPUT_HEIGHT, P2D);
+        size(WINDOW_WIDTH, WINDOW_HEIGHT, P2D);
         PJOGL.profile = 1;
     }
 
@@ -118,6 +121,7 @@ public class RenderSketch extends PApplet {
             activeState.setup(this, uiScreen);
         }
 
+
         outputScreen.beginDraw();
 
         // draw active clips
@@ -125,7 +129,14 @@ public class RenderSketch extends PApplet {
             if(c != null)
                 c.paint(outputScreen);
 
-        outputScreen.endDraw();
+        try
+        {
+            outputScreen.endDraw();
+        }
+        catch (Exception ex)
+        {
+            println("ERROR: " + ex.getMessage());
+        }
 
         // send syphon screen
         syphon.sendImageToSyphon(outputScreen);
@@ -133,7 +144,7 @@ public class RenderSketch extends PApplet {
         // draw output screen
         if(showOutput) {
             tint(255, globalOpacity.getValue());
-            image(outputScreen, 0, 0);
+            image(outputScreen, 0, 0, width, height);
         }
 
         //draw push uiScreen
@@ -147,6 +158,7 @@ public class RenderSketch extends PApplet {
         uiScreen.textAlign(PApplet.LEFT, PApplet.BOTTOM);
         uiScreen.text("FPS: " + (frameRate / PUSH_DISPLAY_REFRESH_STEP), 5, 20);
         */
+
         uiScreen.endDraw();
 
         textAlign(PApplet.LEFT, PApplet.BOTTOM);

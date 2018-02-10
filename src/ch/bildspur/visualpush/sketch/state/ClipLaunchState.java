@@ -46,6 +46,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
     public static final int SOLO_BUTTON = 61;
     public static final int SHIFT_BUTTON = 49;
     public static final int CLIP_BUTTON = 113;
+    public static final int BROWSE_BUTTON = 111;
 
     public static final float CONTROL_HEIGHT = 12;
 
@@ -56,6 +57,8 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
 
     int activeRow = 7;
     int activeColumn = 0;
+
+    boolean clipBrowse = false;
 
     boolean soloMode = false;
     boolean previewMode = false;
@@ -144,7 +147,7 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         for(int i = 0; i < clipViewer.length; i++)
         {
             clipViewer[i] = new ClipViewerControl(5 + (120 * i), 79, 105, 80);
-            clipViewer[i].setFillColor(Color.CYAN);
+            clipViewer[i].setFillColor(Color.MAGENTA);
             launchScene.addControl(clipViewer[i]);
         }
 
@@ -348,6 +351,16 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
             }
         });
 
+        // browse mode button
+        midiListener.add(new ControlChangeHandler(0, BROWSE_BUTTON)
+        {
+            @Override
+            public void controlChange(int channel, int number, int value) {
+                if(value == 127)
+                    switchBrowseMode();
+            }
+        });
+
         // add clip button
         midiListener.add(new ControlChangeHandler(0, CLIP_BUTTON)
         {
@@ -386,6 +399,13 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
                 @Override
                 public void noteOn(int channel, int number, int value) {
                     Clip c = getClipByNumber(number);
+
+                    if(clipBrowse)
+                    {
+                        switchPositionByNumber(number);
+                        switchBrowseMode();
+                        return;
+                    }
 
                     if (c == null)
                         return;
@@ -535,6 +555,15 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
         updateClipControls();
     }
 
+    void switchPositionByNumber(int number)
+    {
+        int row = (number - 36) / 8;
+        int column = (number - 36) % 8;
+
+        switchRow(row);
+        switchColumn(column);
+    }
+
     void lightUpLEDs()
     {
         midiController.sendControllerChange(1, CLIP_BUTTON, RGBColor.WHITE().getColor());
@@ -544,6 +573,11 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
             midiController.sendControllerChange(9, SOLO_BUTTON, RGBColor.GREEN().getColor());
         else
             midiController.sendControllerChange(1, SOLO_BUTTON, RGBColor.WHITE().getColor());
+
+        if(clipBrowse)
+            midiController.sendControllerChange(1, BROWSE_BUTTON, RGBColor.WHITE().getColor());
+        else
+            midiController.sendControllerChange(1, BROWSE_BUTTON, RGBColor.BLACK().getColor());
     }
 
     void switchSoloMode()
@@ -555,6 +589,17 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
             midiController.sendControllerChange(9, SOLO_BUTTON, RGBColor.GREEN().getColor());
         else
             midiController.sendControllerChange(1, SOLO_BUTTON, RGBColor.WHITE().getColor());
+    }
+
+    void switchBrowseMode()
+    {
+        midiController.sendControllerChange(0, BROWSE_BUTTON, 0);
+        clipBrowse = !clipBrowse;
+
+        if(clipBrowse)
+            midiController.sendControllerChange(1, BROWSE_BUTTON, RGBColor.WHITE().getColor());
+        else
+            midiController.sendControllerChange(1, BROWSE_BUTTON, RGBColor.BLACK().getColor());
     }
 
     void setPadColor(int number, PushColor color)

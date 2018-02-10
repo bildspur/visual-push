@@ -58,7 +58,7 @@ public class Clip extends Movie {
         startTime = new DataModel<>(0f);
         speed = new DataModel<>(1f);
         zoom = new DataModel<>(1f);
-        blendMode = new DataModel<>(BlendMode.BLEND);
+        blendMode = new DataModel<>(BlendMode.SCREEN);
         endTime = new DataModel<>(duration());
         redTint = new DataModel<>(255f);
         blueTint = new DataModel<>(255f);
