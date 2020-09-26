@@ -47,6 +47,7 @@ public class RenderSketch extends PApplet {
     DataModel<Float> globalOpacity = new DataModel<>(255f);
 
     boolean showOutput = true;
+    boolean lateSetupRun = false;
 
     public void settings(){
         size(WINDOW_WIDTH, WINDOW_HEIGHT, P2D);
@@ -60,7 +61,9 @@ public class RenderSketch extends PApplet {
 
         // create output screen
         outputScreen = createGraphics(OUTPUT_WIDTH, OUTPUT_HEIGHT, P2D);
+    }
 
+    public void lateSetup() {
         // controller setup
         syphon.setup(this);
 
@@ -69,6 +72,8 @@ public class RenderSketch extends PApplet {
         ui.setup(this);
         clips.setup(this);
         config.setup(this);
+
+        println("everything setup!");
 
         // get uiScreen from push lib
         uiScreen = push.getScreen();
@@ -95,10 +100,15 @@ public class RenderSketch extends PApplet {
 
         // start push screen
         push.open();
+
+        lateSetupRun = true;
     }
 
     public void draw(){
         background(0);
+
+        if(!lateSetupRun)
+            lateSetup();
 
         // clear push uiScreen
         uiScreen.beginDraw();
