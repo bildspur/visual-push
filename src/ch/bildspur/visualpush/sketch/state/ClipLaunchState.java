@@ -261,9 +261,9 @@ public class ClipLaunchState extends PushState implements ClipStateListener {
 
         zoomControl = new FaderControl(new DataModel<>(0f), 0, 74, 0, 3);
         zoomControl.setPosition(new PVector(365, CONTROL_HEIGHT));
-        zoomControl.setStepValue(0.1f);
-        zoomControl.setMinimumValue(-5f);
-        zoomControl.setMaximumValue(5f);
+        zoomControl.setStepValue(0.01f);
+        zoomControl.setMinimumValue(0.1f);
+        zoomControl.setMaximumValue(3.0f);
         midiListener.add(zoomControl);
 
         speedControl = new FaderControl(new DataModel<>(0f), 0, 75, 0, 4);

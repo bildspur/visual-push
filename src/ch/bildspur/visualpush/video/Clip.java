@@ -170,8 +170,14 @@ public class Clip extends Movie {
         // set blend mode
         g.blendMode(blendMode.getValue().getIntValue());
 
+        // zoom
+        g.pushMatrix();
+        g.scale(zoom.getValue());
+
         // draw image
-        ImageUtil.centerImage(g, this);
+        ImageUtil.centerImage(g, this, zoom.getValue());
+
+        g.popMatrix();
     }
 
     @Override

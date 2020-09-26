@@ -14,6 +14,11 @@ public class ImageUtil {
         centerImage(g, img, img.width, img.height);
     }
 
+    public static void centerImage(PGraphics g, PImage img, float scale)
+    {
+        centerImage(g, img, img.width, img.height, scale);
+    }
+
     public static void centerImageAdjusted(PGraphics g, PImage img)
     {
         float scaleFactor;
@@ -28,6 +33,11 @@ public class ImageUtil {
 
     public static void centerImage(PGraphics g, PImage img, float width, float height)
     {
-        g.image(img, (g.width / 2.0f) - (width / 2.0f), (g.height / 2.0f) - (height / 2.0f), width, height);
+        centerImage(g, img, width, height, 1.0f);
+    }
+
+    public static void centerImage(PGraphics g, PImage img, float width, float height, float scale)
+    {
+        g.image(img, (g.width / scale / 2.0f) - (width / 2.0f), (g.height / scale / 2.0f) - (height / 2.0f), width, height);
     }
 }
