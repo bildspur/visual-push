@@ -6,7 +6,7 @@ import ch.bildspur.visualpush.video.Clip;
 /**
  * Created by cansik on 27/08/16.
  */
-public class OneShotMode implements PlayMode {
+public class OneShotMode extends BasePlayMode {
     @Override
     public void onTriggered(Clip clip, ClipController clipController) {
         clip.stop();

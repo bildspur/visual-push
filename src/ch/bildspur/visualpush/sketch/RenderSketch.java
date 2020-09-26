@@ -7,6 +7,8 @@ import ch.bildspur.visualpush.sketch.state.ClipLaunchState;
 import ch.bildspur.visualpush.sketch.state.PushState;
 import ch.bildspur.visualpush.sketch.state.SplashScreenState;
 import ch.bildspur.visualpush.video.Clip;
+import ch.bildspur.visualpush.video.playmode.LoopMode;
+import ch.bildspur.visualpush.video.playmode.PlayMode;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.opengl.PJOGL;
@@ -31,6 +33,8 @@ public class RenderSketch extends PApplet {
 
     final static int FRAME_RATE = 60;
 
+    final static int MAX_LOOP_CLIPS = 5;
+
     SyphonController syphon = new SyphonController();
     MidiController midi = new MidiController();
     PushController push = new PushController();
@@ -49,13 +53,12 @@ public class RenderSketch extends PApplet {
     boolean showOutput = true;
     boolean lateSetupRun = false;
 
-    public void settings(){
+    public void settings() {
         size(WINDOW_WIDTH, WINDOW_HEIGHT, P2D);
         PJOGL.profile = 1;
     }
 
-    public void setup()
-    {
+    public void setup() {
         frameRate(FRAME_RATE);
         surface.setTitle("Visual Push");
 
@@ -88,13 +91,11 @@ public class RenderSketch extends PApplet {
         // load global config
         config.loadGlobalConfig();
 
-        if(config.getProject().exists()) {
+        if (config.getProject().exists()) {
             // load config async
             println("loading config " + config.getProject().getConfigFile().getFileName().toString());
             config.loadAsync(config.getProject().getConfigFile().toString());
-        }
-        else
-        {
+        } else {
             config.notifyListener();
         }
 
@@ -104,10 +105,10 @@ public class RenderSketch extends PApplet {
         lateSetupRun = true;
     }
 
-    public void draw(){
+    public void draw() {
         background(0);
 
-        if(!lateSetupRun)
+        if (!lateSetupRun)
             lateSetup();
 
         // clear push uiScreen
@@ -121,10 +122,9 @@ public class RenderSketch extends PApplet {
         outputScreen.endDraw();
 
         // state machine
-        if(activeState.isRunning())
+        if (activeState.isRunning())
             activeState.update();
-        else
-        {
+        else {
             // change state
             activeState.stop();
             activeState = activeState.getNextState();
@@ -135,16 +135,33 @@ public class RenderSketch extends PApplet {
         outputScreen.beginDraw();
 
         // draw active clips
-        for(Clip c : clips.getImmutableClips())
-            if(c != null)
+        int playingLoopCounter = 0;
+        for (Clip c : clips.getImmutableClips()) {
+            if (c != null) {
                 c.paint(outputScreen);
 
-        try
-        {
-            outputScreen.endDraw();
+                if (c.isPlaying() && c.getPlayMode().getValue() instanceof LoopMode) {
+                    playingLoopCounter++;
+                }
+            }
         }
-        catch (Exception ex)
-        {
+
+        // check max clip count
+        if (playingLoopCounter > MAX_LOOP_CLIPS) {
+            for (Clip c : clips.getImmutableClips()) {
+                if (c != null && c.isPlaying() && c.getPlayMode().getValue() instanceof LoopMode) {
+                    c.stop();
+                    playingLoopCounter--;
+                }
+
+                if(playingLoopCounter <= MAX_LOOP_CLIPS)
+                    break;
+            }
+        }
+
+        try {
+            outputScreen.endDraw();
+        } catch (Exception ex) {
             println("ERROR: " + ex.getMessage());
         }
 
@@ -152,7 +169,7 @@ public class RenderSketch extends PApplet {
         syphon.sendImageToSyphon(outputScreen);
 
         // draw output screen
-        if(showOutput) {
+        if (showOutput) {
             tint(255, globalOpacity.getValue());
             image(outputScreen, 0, 0, width, height);
         }
@@ -175,23 +192,21 @@ public class RenderSketch extends PApplet {
         text("FPS: " + frameRate, 5, 20);
 
         // publish push frame
-        if(frameCount % PUSH_DISPLAY_REFRESH_STEP == 0)
+        if (frameCount % PUSH_DISPLAY_REFRESH_STEP == 0)
             push.sendFrame();
     }
 
-    public void stop()
-    {
+    public void stop() {
         push.close();
     }
 
     // Video methods
     public void movieEvent(Movie m) {
-        if(m.available())
+        if (m.available())
             m.read();
     }
 
-    public void keyPressed()
-    {
+    public void keyPressed() {
         switch (key) {
             case 'h':
                 showOutput = !showOutput;
@@ -210,20 +225,17 @@ public class RenderSketch extends PApplet {
             case 's':
                 if (config.getProject().exists()) {
                     saveConfig(new File(config.getProject().getConfigFile().toString()));
-                }
-                else
-                {
+                } else {
                     selectOutput("Select a file to write the config to:", "saveConfig");
                 }
                 break;
         }
     }
 
-    public void resetClips()
-    {
+    public void resetClips() {
         // deactivate all running clips
-        for(Clip c : clips.getActiveClips())
-            if(c != null)
+        for (Clip c : clips.getActiveClips())
+            if (c != null)
                 clips.deactivateClip(c);
 
         clips.initClipGrid();
@@ -238,8 +250,7 @@ public class RenderSketch extends PApplet {
         }
     }
 
-    public void loadConfig(File selection)
-    {
+    public void loadConfig(File selection) {
         if (selection == null) {
             println("Window was closed or the user hit cancel.");
         } else {
@@ -250,7 +261,9 @@ public class RenderSketch extends PApplet {
     }
 
     // Midi methods
-    public void midiMessage(MidiMessage message) { midi.midiMessage(message);}
+    public void midiMessage(MidiMessage message) {
+        midi.midiMessage(message);
+    }
 
     public SyphonController getSyphon() {
         return syphon;
