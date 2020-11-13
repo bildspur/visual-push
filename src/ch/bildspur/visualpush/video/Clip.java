@@ -5,7 +5,7 @@ import ch.bildspur.visualpush.util.ImageUtil;
 import ch.bildspur.visualpush.video.event.ClipStateListener;
 import ch.bildspur.visualpush.video.playmode.LoopMode;
 import ch.bildspur.visualpush.video.playmode.PlayMode;
-import gohai.glvideo.GLMovie;
+import gohai.glvideo.GLVideo;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PImage;
@@ -17,7 +17,7 @@ import java.util.HashSet;
 /**
  * Created by cansik on 18/08/16.
  */
-public class Clip extends GLMovie {
+public class Clip extends GLVideo {
 
     final static int SPEED_UPDATE_TIME = 20;
     static volatile int clipNumberCounter = 0;

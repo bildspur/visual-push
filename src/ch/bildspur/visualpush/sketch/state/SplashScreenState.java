@@ -4,7 +4,6 @@ import ch.bildspur.visualpush.push.color.RGBColor;
 import ch.bildspur.visualpush.sketch.controller.ConfigurationController;
 import ch.bildspur.visualpush.util.ContentUtil;
 import ch.bildspur.visualpush.util.ImageUtil;
-import gohai.glvideo.GLMovie;
 import gohai.glvideo.GLVideo;
 import processing.core.PApplet;
 import processing.core.PGraphics;
@@ -15,7 +14,7 @@ import processing.core.PGraphics;
 public class SplashScreenState extends PushState {
     final int LED_START =  36;
 
-    GLMovie bildspurLogo;
+    GLVideo bildspurLogo;
     int lightingLED = 63;
     int duration;
     float startFrame = 0;
@@ -34,21 +33,17 @@ public class SplashScreenState extends PushState {
         super.setup(sketch, screen);
 
         String splashPath = ContentUtil.getContent("splash_screen_short.mov");
-        bildspurLogo = new GLMovie(sketch, splashPath);
+        PApplet.println(splashPath);
+        bildspurLogo = new GLVideo(sketch, splashPath);
         bildspurLogo.loop();
+
+        duration = (int)(bildspurLogo.duration() * 45);
 
         this.sketch.getMidi().clearLEDs();
     }
 
     public void update()
     {
-        if (bildspurLogo.available()) {
-            bildspurLogo.read();
-
-            if(duration == 0)
-                duration = (int)(bildspurLogo.duration() * 45);
-        }
-
         this.sketch.getMidi().sendNoteOff(0, lightingLED + LED_START, 0);
         lightingLED = (int)(PApplet.map(sketch.frameCount, startFrame, duration, 0, 63));
         this.sketch.getMidi().sendNoteOn(0, lightingLED + LED_START, RGBColor.WHITE().getColor());
