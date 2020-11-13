@@ -9,6 +9,7 @@ import gohai.glvideo.GLVideo;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PImage;
+import processing.video.Movie;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -153,7 +154,6 @@ public class Clip extends GLVideo {
         // generate preview image
         play();
         jump(duration() / 2);
-        readFrame();
         previewImage = this.copy();
         stop();
     }
@@ -174,9 +174,6 @@ public class Clip extends GLVideo {
 
     public void paint(PGraphics g)
     {
-        // read next image
-        readFrame();
-
         // set opacity
         g.tint(redTint.getValue(), greenTint.getValue(), blueTint.getValue(), opacity.getValue());
 
@@ -189,14 +186,6 @@ public class Clip extends GLVideo {
         // on end set eos event
         if(super.time() == 1.0)
             eosEvent();
-    }
-
-    public void readFrame()
-    {
-        // read video
-        if (available()) {
-            read();
-        }
     }
 
     @Override

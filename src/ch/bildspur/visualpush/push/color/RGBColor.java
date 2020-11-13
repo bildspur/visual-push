@@ -20,7 +20,10 @@ public class RGBColor extends PushColor
         return new PushColor(125);
     }
 
-    public static PushColor WHITE() { return new PushColor(122); }
+    public static PushColor WHITE()
+    {
+        return new PushColor(122);
+    }
 
     public static PushColor BLACK()
     {
