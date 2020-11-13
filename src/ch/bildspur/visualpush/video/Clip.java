@@ -41,6 +41,7 @@ public class Clip extends GLVideo {
     DataModel<Float> blueTint;
     DataModel<Float> greenTint;
     DataModel<String> clipName;
+    DataModel<Boolean> playing;
     DataModel<Path> fileName;
 
     HashSet<ClipStateListener> stateListener = new HashSet<>();
@@ -54,6 +55,7 @@ public class Clip extends GLVideo {
         clipNumber = generateClipNumber();
 
         // initialize models
+        playing = new DataModel<>(false);
         playMode = new DataModel<>(new LoopMode());
         opacity = new DataModel<>(255f);
         startTime = new DataModel<>(0f);
@@ -81,7 +83,7 @@ public class Clip extends GLVideo {
     }
 
     public boolean isPlaying() {
-        return playing();
+        return playing.getValue();
     }
 
     public DataModel<PlayMode> getPlayMode() {
@@ -164,7 +166,7 @@ public class Clip extends GLVideo {
 
     public PImage getPreview()
     {
-        if(playing())
+        if(playing.getValue())
             return this;
         else
             return previewImage;
@@ -201,17 +203,20 @@ public class Clip extends GLVideo {
     public void play()
      {
          super.play();
+         playing.setValue(true);
      }
 
     @Override
     public void loop()
     {
         super.loop();
+        playing.setValue(true);
     }
 
     public void stop()
     {
         super.pause();
+        playing.setValue(false);
     }
 
     private void eosEvent() {
