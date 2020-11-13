@@ -15,7 +15,7 @@ import java.awt.image.BufferedImage;
  */
 public class PushController extends ProcessingController implements Runnable {
 
-    static final int PUBLISH_FRAME_RATE = 33;
+    static final int PUBLISH_FRAME_RATE = 50;
 
     Thread publishThread;
 

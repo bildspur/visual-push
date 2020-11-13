@@ -7,6 +7,8 @@ import ch.bildspur.visualpush.sketch.state.ClipLaunchState;
 import ch.bildspur.visualpush.sketch.state.PushState;
 import ch.bildspur.visualpush.sketch.state.SplashScreenState;
 import ch.bildspur.visualpush.video.Clip;
+import ch.bildspur.visualpush.video.playmode.LoopMode;
+import ch.bildspur.visualpush.video.playmode.PlayMode;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.opengl.PJOGL;
@@ -21,12 +23,17 @@ import java.nio.file.Paths;
  * Created by cansik on 16/08/16.
  */
 public class RenderSketch extends PApplet {
-    final static int PUSH_DISPLAY_REFRESH_STEP = 1;
+    final static int PUSH_DISPLAY_REFRESH_STEP = 3;
 
-    final static int OUTPUT_WIDTH = 640;
-    final static int OUTPUT_HEIGHT = 480;
+    final static int OUTPUT_WIDTH = 960;
+    final static int OUTPUT_HEIGHT = 720;
 
-    final static int FRAME_RATE = 30;
+    final static int WINDOW_WIDTH = 640;
+    final static int WINDOW_HEIGHT = 480;
+
+    final static int FRAME_RATE = 60;
+
+    final static int MAX_LOOP_CLIPS = 5;
 
     SyphonController syphon = new SyphonController();
     MidiController midi = new MidiController();
@@ -44,20 +51,22 @@ public class RenderSketch extends PApplet {
     DataModel<Float> globalOpacity = new DataModel<>(255f);
 
     boolean showOutput = true;
+    boolean lateSetupRun = false;
 
-    public void settings(){
-        size(OUTPUT_WIDTH, OUTPUT_HEIGHT, P2D);
+    public void settings() {
+        size(WINDOW_WIDTH, WINDOW_HEIGHT, P2D);
         PJOGL.profile = 1;
     }
 
-    public void setup()
-    {
+    public void setup() {
         frameRate(FRAME_RATE);
         surface.setTitle("Visual Push");
 
         // create output screen
         outputScreen = createGraphics(OUTPUT_WIDTH, OUTPUT_HEIGHT, P2D);
+    }
 
+    public void lateSetup() {
         // controller setup
         syphon.setup(this);
 
@@ -66,6 +75,8 @@ public class RenderSketch extends PApplet {
         ui.setup(this);
         clips.setup(this);
         config.setup(this);
+
+        println("everything setup!");
 
         // get uiScreen from push lib
         uiScreen = push.getScreen();
@@ -80,22 +91,25 @@ public class RenderSketch extends PApplet {
         // load global config
         config.loadGlobalConfig();
 
-        if(config.getProject().exists()) {
+        if (config.getProject().exists()) {
             // load config async
             println("loading config " + config.getProject().getConfigFile().getFileName().toString());
             config.loadAsync(config.getProject().getConfigFile().toString());
-        }
-        else
-        {
+        } else {
             config.notifyListener();
         }
 
         // start push screen
         push.open();
+
+        lateSetupRun = true;
     }
 
-    public void draw(){
+    public void draw() {
         background(0);
+
+        if (!lateSetupRun)
+            lateSetup();
 
         // clear push uiScreen
         uiScreen.beginDraw();
@@ -108,32 +122,56 @@ public class RenderSketch extends PApplet {
         outputScreen.endDraw();
 
         // state machine
-        if(activeState.isRunning())
+        if (activeState.isRunning())
             activeState.update();
-        else
-        {
+        else {
             // change state
             activeState.stop();
             activeState = activeState.getNextState();
             activeState.setup(this, uiScreen);
         }
 
+
         outputScreen.beginDraw();
 
         // draw active clips
-        for(Clip c : clips.getImmutableClips())
-            if(c != null)
+        int playingLoopCounter = 0;
+        for (Clip c : clips.getImmutableClips()) {
+            if (c != null) {
                 c.paint(outputScreen);
 
-        outputScreen.endDraw();
+                if (c.isPlaying() && c.getPlayMode().getValue() instanceof LoopMode) {
+                    playingLoopCounter++;
+                }
+            }
+        }
+
+        // check max clip count
+        if (playingLoopCounter > MAX_LOOP_CLIPS) {
+            for (Clip c : clips.getImmutableClips()) {
+                if (c != null && c.isPlaying() && c.getPlayMode().getValue() instanceof LoopMode) {
+                    c.stop();
+                    playingLoopCounter--;
+                }
+
+                if(playingLoopCounter <= MAX_LOOP_CLIPS)
+                    break;
+            }
+        }
+
+        try {
+            outputScreen.endDraw();
+        } catch (Exception ex) {
+            println("ERROR: " + ex.getMessage());
+        }
 
         // send syphon screen
         syphon.sendImageToSyphon(outputScreen);
 
         // draw output screen
-        if(showOutput) {
+        if (showOutput) {
             tint(255, globalOpacity.getValue());
-            image(outputScreen, 0, 0);
+            image(outputScreen, 0, 0, width, height);
         }
 
         //draw push uiScreen
@@ -147,29 +185,28 @@ public class RenderSketch extends PApplet {
         uiScreen.textAlign(PApplet.LEFT, PApplet.BOTTOM);
         uiScreen.text("FPS: " + (frameRate / PUSH_DISPLAY_REFRESH_STEP), 5, 20);
         */
+
         uiScreen.endDraw();
 
         textAlign(PApplet.LEFT, PApplet.BOTTOM);
         text("FPS: " + frameRate, 5, 20);
 
         // publish push frame
-        if(frameCount % PUSH_DISPLAY_REFRESH_STEP == 0)
+        if (frameCount % PUSH_DISPLAY_REFRESH_STEP == 0)
             push.sendFrame();
     }
 
-    public void stop()
-    {
+    public void stop() {
         push.close();
     }
 
     // Video methods
     public void movieEvent(Movie m) {
-        if(m.available())
+        if (m.available())
             m.read();
     }
 
-    public void keyPressed()
-    {
+    public void keyPressed() {
         switch (key) {
             case 'h':
                 showOutput = !showOutput;
@@ -188,20 +225,17 @@ public class RenderSketch extends PApplet {
             case 's':
                 if (config.getProject().exists()) {
                     saveConfig(new File(config.getProject().getConfigFile().toString()));
-                }
-                else
-                {
+                } else {
                     selectOutput("Select a file to write the config to:", "saveConfig");
                 }
                 break;
         }
     }
 
-    public void resetClips()
-    {
+    public void resetClips() {
         // deactivate all running clips
-        for(Clip c : clips.getActiveClips())
-            if(c != null)
+        for (Clip c : clips.getActiveClips())
+            if (c != null)
                 clips.deactivateClip(c);
 
         clips.initClipGrid();
@@ -216,8 +250,7 @@ public class RenderSketch extends PApplet {
         }
     }
 
-    public void loadConfig(File selection)
-    {
+    public void loadConfig(File selection) {
         if (selection == null) {
             println("Window was closed or the user hit cancel.");
         } else {
@@ -228,7 +261,9 @@ public class RenderSketch extends PApplet {
     }
 
     // Midi methods
-    public void midiMessage(MidiMessage message) { midi.midiMessage(message);}
+    public void midiMessage(MidiMessage message) {
+        midi.midiMessage(message);
+    }
 
     public SyphonController getSyphon() {
         return syphon;

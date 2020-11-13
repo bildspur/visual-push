@@ -188,11 +188,7 @@ public class Wayang {
 
         // Set up hook to close gracefully at shutdown, if we have not already done so.
         if (!shutdownHookInstalled) {
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                public void run() {
-                    close();
-                }
-            });
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> close()));
             shutdownHookInstalled = true;
         }
 
@@ -308,13 +304,10 @@ public class Wayang {
         }
         startEventThread();
         Transfer headerTransfer = LibUsb.allocTransfer();
-        LibUsb.fillBulkTransfer(headerTransfer, pushHandle, (byte) 0x01, headerBuffer, new TransferCallback() {
-            @Override
-            public void processTransfer(Transfer transfer) {
-                // Could look at transfer.status and transfer.actualLength here and report issues once we have
-                // a logging framework or outer callback interface.
-                LibUsb.freeTransfer(transfer);
-            }
+        LibUsb.fillBulkTransfer(headerTransfer, pushHandle, (byte) 0x01, headerBuffer, transfer -> {
+            // Could look at transfer.status and transfer.actualLength here and report issues once we have
+            // a logging framework or outer callback interface.
+            LibUsb.freeTransfer(transfer);
         }, null, 1000);
 
         int result = LibUsb.submitTransfer(headerTransfer);
@@ -333,12 +326,9 @@ public class Wayang {
             transferBuffer.clear();
             transferBuffer.put(maskedChunk);
             Transfer frameTransfer = LibUsb.allocTransfer();
-            LibUsb.fillBulkTransfer(frameTransfer, pushHandle, (byte) 0x01, transferBuffer, new TransferCallback() {
-                @Override
-                public void processTransfer(Transfer transfer) {
-                    // Again could report issues based on transfer.status and transfer.actualLength once there's a way.
-                    LibUsb.freeTransfer(transfer);
-                }
+            LibUsb.fillBulkTransfer(frameTransfer, pushHandle, (byte) 0x01, transferBuffer, transfer -> {
+                // Again could report issues based on transfer.status and transfer.actualLength once there's a way.
+                LibUsb.freeTransfer(transfer);
             }, null, 1000);
             result = LibUsb.submitTransfer(frameTransfer);
 

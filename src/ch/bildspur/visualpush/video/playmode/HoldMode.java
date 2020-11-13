@@ -6,7 +6,7 @@ import ch.bildspur.visualpush.video.Clip;
 /**
  * Created by cansik on 27/08/16.
  */
-public class HoldMode implements PlayMode {
+public class HoldMode extends BasePlayMode {
     @Override
     public void onTriggered(Clip clip, ClipController clipController) {
         clip.loop();
@@ -21,7 +21,6 @@ public class HoldMode implements PlayMode {
 
     @Override
     public void clipStopped(Clip clip, ClipController clipController) {
-
     }
 
     @Override
