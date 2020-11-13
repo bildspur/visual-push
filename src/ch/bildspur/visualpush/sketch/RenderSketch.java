@@ -23,7 +23,7 @@ public class RenderSketch extends PApplet {
     final static int OUTPUT_WIDTH = 640;
     final static int OUTPUT_HEIGHT = 480;
 
-    final static int FRAME_RATE = 60;
+    final static int FRAME_RATE = 30;
 
     SyphonController syphon = new SyphonController();
     MidiController midi = new MidiController();
@@ -80,9 +80,7 @@ public class RenderSketch extends PApplet {
         if(config.getProject().exists()) {
             // load config async
             println("loading config " + config.getProject().getConfigFile().getFileName().toString());
-            // config.loadAsync(config.getProject().getConfigFile().toString());
-            config.load(config.getProject().getConfigFile().toString());
-            println("loaded!");
+            config.loadAsync(config.getProject().getConfigFile().toString());
         }
         else
         {
