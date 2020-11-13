@@ -150,7 +150,7 @@ public class ConfigurationController extends PushController {
         json.setInt("row", row);
         json.setInt("column", column);
 
-        json.setString("path", getRelative(clip.getFileName().getValue().toString()).toString());
+        json.setString("path", getRelative(clip.filename).toString());
         json.setInt("playMode", clip.getPlayMode().getValue().getIntValue());
         json.setFloat("opacity", clip.getOpacity().getValue());
         json.setFloat("startTime", clip.getStartTime().getValue());
